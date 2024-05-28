@@ -1,6 +1,5 @@
 package com.example.gprec_30;
 
-
 //finally made the change
 import android.annotation.SuppressLint;
 import android.content.Intent;
