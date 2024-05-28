@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- Scheme Spinner -->
+    <Spinner
+        android:id="@+id/spinnerScheme"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:minHeight="48dp"
+        style="@android:style/Widget.Holo.Light.Spinner"/>
+
+    <!-- Branch Spinner -->
+    <Spinner
+        android:id="@+id/spinnerBranch"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:minHeight="48dp"
+        style="@android:style/Widget.Holo.Light.Spinner"/>
+
+    <!-- Year Spinner -->
+    <Spinner
+        android:id="@+id/spinnerYear"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:minHeight="48dp"
+        style="@android:style/Widget.Holo.Light.Spinner"/>
+
+    <!-- Semester Spinner -->
+    <Spinner
+        android:id="@+id/spinnerSemester"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:minHeight="48dp"
+        android:prompt="@string/ph_sem"
+        style="@android:style/Widget.Holo.Light.Spinner"/>
+
+    <!-- Section Spinner -->
+    <Spinner
+        android:id="@+id/spinnerSection"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:minHeight="48dp"
+        android:prompt="@string/ph_section"
+        style="@android:style/Widget.Holo.Light.Spinner"/>
+
+    <!-- Search Button -->
+    <Button
+        android:id="@+id/buttonSearch"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/search"/>
+
+    <!-- Heading TextView -->
+    <TextView
+        android:id="@+id/textViewHeading"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Assignments"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:gravity="center"/>
+
+    <!-- Table Layout for Assignments -->
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <!-- Vertical Scroll View for TableLayout -->
+        <ScrollView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent">
+
+            <!-- Table Layout for Assignments -->
+            <TableLayout
+                android:id="@+id/tableLayoutAssignments"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:stretchColumns="*"
+                android:background="@drawable/border_table">>
+
+                <!-- Table Header Row -->
+                <TableRow>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/subject_code"
+                        android:textStyle="bold"
+                        android:padding="8dp"
+                        android:background="@drawable/border_cell"
+                        android:gravity="center"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/employee_name"
+                        android:textStyle="bold"
+                        android:padding="8dp"
+                        android:background="@drawable/border_cell"
+                        android:gravity="center"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/employee_id"
+                        android:textStyle="bold"
+                        android:padding="8dp"
+                        android:background="@drawable/border_cell"
+                        android:gravity="center"/>
+                </TableRow>
+
+                <!-- Dynamic Rows for Assignments will be added here -->
+
+            </TableLayout>
+        </ScrollView>
+    </HorizontalScrollView>
+
+</LinearLayout>

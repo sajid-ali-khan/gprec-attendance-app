@@ -1,0 +1,30 @@
+<resources>
+    <string name="app_name">GPREC-3.0</string>
+    <string name="navigation_drawer_open">Navigation Drawer Opened</string>
+    <string name="navigation_drawer_close">Navigation Drawer Closed</string>
+    <string name="ph_scheme">--- select scheme ---</string>
+    <string name="ph_branch">--- select branch ---</string>
+    <string name="ph_year">--- select year ---</string>
+    <string name="ph_sem">--- select semester ---</string>
+    <string name="ph_section">--- select section ---</string>
+    <string name="ph_sub">--- select subject ---</string>
+    <string name="assign_class">Submit</string>
+    <string name="search">Search</string>
+    <string name="ph_empid">Enter the EmployeeId</string>
+    <string name="old_password">Enter the old password</string>
+    <string name="new_password">Enter the new password</string>
+    <string name="confirm_password">Confirm password</string>
+    <string name="submit">Submit</string>
+    <string name="ph_class">Select the class</string>
+    <string name="password">Password</string>
+    <string name="user_id">User ID</string>
+    <string name="college_logo">College Logo</string>
+    <string name="show_password">Show Password</string>
+    <string name="forgot_password">Forgot Password</string>
+    <string name="user_login">User Login</string>
+    <string name="change_password">Change Password</string>
+    <string name="select_class">Select Class</string>
+    <string name="employee_id">Employee ID</string>
+    <string name="employee_name">Employee Name</string>
+    <string name="subject_code">Subject Code</string>
+</resources>

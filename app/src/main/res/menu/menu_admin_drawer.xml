@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Assign Class Item -->
+    <item
+        android:id="@+id/nav_assign_class"
+        android:title="Assign Class"
+        android:icon="@drawable/ic_assign_class" />
+
+    <!-- See Assignments Item -->
+    <item
+        android:id="@+id/nav_see_assignments"
+        android:title="See Assignments"
+        android:icon="@drawable/ic_see_assignments" />
+
+    <!-- Change Password Item -->
+    <item
+        android:id="@+id/nav_change_password"
+        android:title="Change Password"
+        android:icon="@drawable/ic_change_password" />
+
+    <!-- Logout Item -->
+    <item
+        android:id="@+id/nav_logout"
+        android:title="Logout"
+        android:icon="@drawable/ic_logout" />
+
+</menu>

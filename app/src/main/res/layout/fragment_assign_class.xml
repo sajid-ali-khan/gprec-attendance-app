@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="8dp">
+
+    <!-- Scheme Spinner -->
+    <Spinner
+        android:id="@+id/spinnerScheme"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:minHeight="48dp"
+        android:prompt="@string/ph_scheme"
+        style="@android:style/Widget.Holo.Light.Spinner"/>
+
+    <!-- Branch Spinner -->
+    <Spinner
+        android:id="@+id/spinnerBranch"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:minHeight="48dp"
+        android:prompt="@string/ph_branch"
+        style="@android:style/Widget.Holo.Light.Spinner"/>
+
+    <!-- Year Spinner -->
+    <Spinner
+        android:id="@+id/spinnerYear"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:minHeight="48dp"
+        style="@android:style/Widget.Holo.Light.Spinner"/>
+
+    <!-- Semester Spinner -->
+    <Spinner
+        android:id="@+id/spinnerSemester"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:minHeight="48dp"
+        style="@android:style/Widget.Holo.Light.Spinner"/>
+
+    <!-- Section Spinner -->
+    <Spinner
+        android:id="@+id/spinnerSection"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:minHeight="48dp"
+        style="@android:style/Widget.Holo.Light.Spinner"/>
+
+    <!-- Subject Spinner -->
+    <Spinner
+        android:id="@+id/spinnerSubject"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:minHeight="48dp"
+        style="@android:style/Widget.Holo.Light.Spinner"/>
+
+    <!-- Teacher ID/Name EditText -->
+    <AutoCompleteTextView
+        android:id="@+id/editTextTeacher"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/ph_empid"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/edit_text_border"
+        android:padding="8dp"
+        android:minHeight="48dp" />
+
+    <!-- Button to Assign Class -->
+    <Button
+        android:id="@+id/buttonAssignClass"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/assign_class"/>
+
+</LinearLayout>

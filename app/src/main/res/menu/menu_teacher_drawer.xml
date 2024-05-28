@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Take Attendance Item -->
+    <item
+        android:id="@+id/nav_take_attendance"
+        android:title="Take Attendance"
+        android:icon="@drawable/ic_take_attendance" />
+
+    <!-- Change Password Item -->
+    <item
+        android:id="@+id/nav_change_password"
+        android:title="Change Password"
+        android:icon="@drawable/ic_change_password" />
+
+    <!-- Logout Item -->
+    <item
+        android:id="@+id/nav_logout"
+        android:title="Logout"
+        android:icon="@drawable/ic_logout" />
+
+</menu>
