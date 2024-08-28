@@ -18,6 +18,7 @@ import com.example.gprec_30.R;
 import com.example.gprec_30.utils.BranchYearExtractor;
 import com.example.gprec_30.utils.DataFetcher;
 import com.example.gprec_30.utils.DatabaseHelper;
+import com.example.gprec_30.utils.RegesterCodeCreator;
 import com.example.gprec_30.utils.SpinnerHelper;
 
 import java.sql.Connection;
@@ -31,10 +32,11 @@ public class AssignClassFragment extends Fragment {
 
     private Spinner spinnerScheme, spinnerBranch, spinnerYear, spinnerSemester, spinnerSection, spinnerSubject;
     private AutoCompleteTextView autotv_employee;
-    private Button buttonAssignClass;
 
     // Variables to hold selected values
-    private String selectedScheme, selectedBranch, selectedYear, selectedSemester, selectedSection, selectedBranchYear, selectedSubject, sub_code, selectedEmployee, empName;
+    private String selectedScheme, selectedBranch, selectedYear, selectedSemester, selectedSection, selectedBranchYear, selectedSubject, selectedEmployee, empName;
+    private String sub_name, sub_code;
+    private int assignment_id;
     int empId;
 
     DataFetcher dataFetcher = new DataFetcher();
@@ -50,6 +52,9 @@ public class AssignClassFragment extends Fragment {
 
     List<String> schemes, branches, years, sems, sections, subjects, employees;
 
+    int courseId;
+    String reg_code;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -64,7 +69,7 @@ public class AssignClassFragment extends Fragment {
         spinnerSection = rootView.findViewById(R.id.spinnerSection);
         spinnerSubject = rootView.findViewById(R.id.spinnerSubject);
         autotv_employee = rootView.findViewById(R.id.editTextTeacher);
-        buttonAssignClass = rootView.findViewById(R.id.buttonAssignClass);
+        Button buttonAssignClass = rootView.findViewById(R.id.buttonAssignClass);
 
         // Initialize placeholders of spinners
         ph_scheme = getString(R.string.ph_scheme);
@@ -98,7 +103,7 @@ public class AssignClassFragment extends Fragment {
                 try {
                     updateBranchSpinner();
                 } catch (SQLException e) {
-                    Toast.makeText(requireContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(requireContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -110,7 +115,7 @@ public class AssignClassFragment extends Fragment {
                 try {
                     updateYearSpinner();
                 } catch (SQLException e) {
-                    Toast.makeText(requireContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(requireContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -123,7 +128,7 @@ public class AssignClassFragment extends Fragment {
                 try {
                     updateSemSpinner();
                 } catch (SQLException e) {
-                    Toast.makeText(requireContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(requireContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -143,7 +148,7 @@ public class AssignClassFragment extends Fragment {
                 try {
                     updateSubjectSpinner();
                 } catch (SQLException e) {
-                    Toast.makeText(requireContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(requireContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -152,15 +157,18 @@ public class AssignClassFragment extends Fragment {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 selectedSubject = parent.getItemAtPosition(position).toString();
+
                 int startIndex = selectedSubject.indexOf("(");
                 int endIndex = selectedSubject.lastIndexOf(")");
-                if (startIndex != -1 && endIndex != -1) {
-                    sub_code = selectedSubject.substring(startIndex + 1, endIndex);
-                    Log.e("my testing","Subject code for "+ selectedSubject + " is "+sub_code);
-                } else {
-                    Log.e("my testing", "Subject " + selectedSubject + " doesn't contain parentheses.");
+                if (!selectedSubject.equals(ph_sub)) {
+                    sub_name = selectedSubject.substring(0, selectedSubject.indexOf("("));
+                    if (startIndex != -1 && endIndex != -1) {
+                        sub_code = selectedSubject.substring(startIndex + 1, endIndex);
+                        Log.e("my testing", "Subject code for " + selectedSubject + " is " + sub_code);
+                    } else {
+                        Log.e("my testing", "Subject " + selectedSubject + " doesn't contain parentheses.");
+                    }
                 }
-
             }
         });
 
@@ -214,18 +222,19 @@ public class AssignClassFragment extends Fragment {
     // Method to handle class assignment
     private void assignClass() throws SQLException {
         if(allSelected()){
+            Log.d("Selected Params", empId+" "+empName+" "+selectedScheme+" "+selectedBranch+" "+selectedSemester+" "+sub_name);
+            courseId = dataFetcher.getCourseId(selectedScheme, selectedBranchYear, selectedSemester, sub_code, sub_name);
+            reg_code = RegesterCodeCreator.createRegCode(selectedScheme, selectedBranch, selectedSemester, selectedSection, sub_code);
+            Log.d("AssignClass", "courseId = "+courseId + ", reg_code = "+reg_code);
             if(!isDataExists()){
                 {
+
                     try (Connection con = DatabaseHelper.SQLConnection()) {
-                        String insertQuery = "INSERT INTO AssignmentsTable (employee_id, employee_name, branch, sem, section, scheme, scode) VALUES (?, ?, ?, ?, ?, ?, ?)";
+                        String insertQuery = "INSERT INTO assignments (empid, courseid, reg_code) VALUES (?, ?, ?)";
                         try (PreparedStatement pst = con.prepareStatement(insertQuery)) {
-                            pst.setInt(1, empId);
-                            pst.setString(2, empName);
-                            pst.setString(3, selectedBranchYear);
-                            pst.setString(4, selectedSemester);
-                            pst.setString(5, selectedSection);
-                            pst.setString(6, selectedScheme);
-                            pst.setString(7, sub_code);
+                            pst.setString(1, String.valueOf(empId));
+                            pst.setInt(2, courseId);
+                            pst.setString(3, reg_code);
 
                             int rowsAffected = pst.executeUpdate();
                             if (rowsAffected > 0) {
@@ -238,6 +247,7 @@ public class AssignClassFragment extends Fragment {
                         }
                     } catch (SQLException e) {
                         showToast(e.getMessage());
+                        Log.d("Assignments", e.getMessage());
                     }
                 }
             }else {
@@ -249,6 +259,7 @@ public class AssignClassFragment extends Fragment {
         // This might involve database operations or other actions
         // You can pass these values to a method that handles the assignment process
     }
+
     private void performDeletion() throws SQLException {
         Connection con=DatabaseHelper.SQLConnection();
 
@@ -261,15 +272,10 @@ public class AssignClassFragment extends Fragment {
             return;
         }
 
-        String insertQuery = "delete from AssignmentsTable where employee_id = ? and branch = ? and sem = ? and section = ? and scode = ? and  scheme = ?";
+        String insertQuery = "delete from assignments where assignment_id = ?";
 
         try (PreparedStatement pst = con.prepareStatement(insertQuery)) {
-            pst.setInt(1, empId);
-            pst.setInt(2, Integer.parseInt(selectedBranchYear));
-            pst.setInt(3, Integer.parseInt(selectedSemester));
-            pst.setString(4, selectedSection);
-            pst.setString(5, sub_code);
-            pst.setString(6, selectedScheme);
+            pst.setInt(1, assignment_id);
 
 
 
@@ -325,16 +331,14 @@ public class AssignClassFragment extends Fragment {
     private boolean isDataExists() throws SQLException {
         Connection con= DatabaseHelper.SQLConnection();
 
-        String query = "select employee_id, employee_name, branch, sem, section, scode, scheme from AssignmentsTable where employee_id = ? and branch = ? and sem = ? and section = ? and scode = ? and  scheme = ?";
+        String query = "select assignment_id from assignments where empid = ? and courseid = ? and reg_code = ?";
         try (PreparedStatement pst = con.prepareStatement(query)) {
             pst.setInt(1, empId);
-            pst.setInt(2, Integer.parseInt(selectedBranchYear));
-            pst.setInt(3, Integer.parseInt(selectedSemester));
-            pst.setString(4, selectedSection);
-            pst.setString(5, sub_code);
-            pst.setString(6, selectedScheme);
+            pst.setInt(2, courseId);
+            pst.setString(3, reg_code);
             try (ResultSet rs = pst.executeQuery()) {
                 if (rs.next()) {
+                    assignment_id = rs.getInt("assignment_id");
                     return true;
                 }
             }

@@ -6,6 +6,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -247,6 +248,27 @@ public class DataFetcher {
             }
         }
         return students;
+    }
+
+    public int getCourseId(String selectedScheme, String selectedBranchYear, String selectedSemester, String subCode, String selectedSubject) {
+        int courseId;
+        String query = "select courseid from course WHERE scheme = ? and branch = ? and sem = ? AND scode = ? AND subname = ?";
+        try{
+            PreparedStatement st = con.prepareStatement(query);
+            st.setString(1, selectedScheme);
+            st.setInt(2, Integer.parseInt(selectedBranchYear));
+            st.setInt(3, Integer.parseInt(selectedSemester));
+            st.setString(4, subCode);
+            st.setString(5, selectedSubject);
+
+            ResultSet rs = st.executeQuery();
+            if (rs.next()){
+                return rs.getInt("courseid");
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return -1;
     }
 }
 
