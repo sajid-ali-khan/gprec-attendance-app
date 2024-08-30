@@ -16,9 +16,10 @@ import android.widget.Toast;
 import androidx.fragment.app.Fragment;
 
 import com.example.gprec_30.R;
-import com.example.gprec_30.utils.Assignment;
 import com.example.gprec_30.utils.BranchYearExtractor;
+import com.example.gprec_30.utils.ClassAssignment;
 import com.example.gprec_30.utils.DataFetcher;
+import com.example.gprec_30.utils.RegesterCodeCreator;
 import com.example.gprec_30.utils.SpinnerHelper;
 
 import java.sql.SQLException;
@@ -41,7 +42,7 @@ public class SeeAssignmentsFragment extends Fragment {
     DataFetcher dataFetcher = new DataFetcher();
 
     List<String> schemes, branches, years, sems, sections;
-    List<Assignment> assignmentList;
+    List<ClassAssignment> assignmentList;
 
     String ph_scheme, ph_branch, ph_year, ph_sem, ph_sec;
 
@@ -178,8 +179,9 @@ public class SeeAssignmentsFragment extends Fragment {
 
         String class_name = selectedSemester+" " + selectedBranchName + " " + selectedSection;
         tableHeading.setText(class_name);
-
-        assignmentList = dataFetcher.fetchAssignments(selectedScheme, selectedBranchName, Integer.parseInt(selectedYear), Integer.parseInt(selectedSemester), selectedSection);
+        String reg_code = RegesterCodeCreator.createRegCode(selectedScheme, selectedBranchName, selectedSemester, selectedSection);
+        Log.d("seeAssignmentsClass", "reg code = "+reg_code);
+        assignmentList = dataFetcher.getClassAssignments(reg_code);
 
         // Get the table layout
 
@@ -188,17 +190,17 @@ public class SeeAssignmentsFragment extends Fragment {
         tableLayout.removeViews(1, tableLayout.getChildCount() - 1);
 
         // Iterate over the assignment list and add rows dynamically
-        for (Assignment assignment : assignmentList) {
+        for (ClassAssignment assignment : assignmentList) {
             // Create a new row
             TableRow row = new TableRow(requireContext());
 
             // Create TextViews for each assignment field
             TextView subCodeTextView = new TextView(requireContext());
-            subCodeTextView.setText(assignment.getSubCode());
+            subCodeTextView.setText(assignment.getScode());
             subCodeTextView.setBackgroundResource(R.drawable.border_cell);
 
             TextView empNameTextView = new TextView(requireContext());
-            empNameTextView.setText(assignment.getEmpName());
+            empNameTextView.setText(assignment.getEmployeeName());
             empNameTextView.setBackgroundResource(R.drawable.border_cell);
 
             TextView empIdTextView = new TextView(requireContext());

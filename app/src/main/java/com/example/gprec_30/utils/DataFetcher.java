@@ -22,9 +22,6 @@ public class DataFetcher {
 
     List<String> employees = new ArrayList<>();
     List<String> students = new ArrayList<>();
-    List<Assignment> assignments = new ArrayList<>();
-
-    List<Assignment> classAssignments = new ArrayList<>();
 
     String query = "";
 
@@ -163,53 +160,60 @@ public class DataFetcher {
         return employees;
     }
 
-    public List<Assignment> fetchAssignments(String emp_id) throws SQLException {
-        query = "SELECT branch, section, sem, scode FROM AssignmentsTable WHERE employee_id = ?";
 
-        try(PreparedStatement pst = con.prepareStatement(query)){
-            pst.setString(1, emp_id);
-            try(ResultSet rs = pst.executeQuery()){
+    //for the see assignments fragment
+    public List<ClassAssignment> getClassAssignments(String regCodePattern) {
+        List<ClassAssignment> assignments = new ArrayList<>();
+        regCodePattern += "%";
+        String query = "SELECT course.scode, assignments.empid, employee.name " +
+                "FROM course " +
+                "INNER JOIN assignments ON course.courseid = assignments.courseid " +
+                "INNER JOIN employee ON assignments.empid = employee.empid " +
+                "WHERE assignments.reg_code LIKE ?";
 
-                assignments.clear();
-                while(rs.next()){
-                    int sem = rs.getInt("sem");
-                    String branch_name = BranchYearExtractor.getBranchName(rs.getInt("branch"));
-                    String section = rs.getString("section");
-                    String sub_code = rs.getString("scode");
+        try (PreparedStatement stmt = con.prepareStatement(query)) {
+            stmt.setString(1, regCodePattern);
 
-                    Assignment assignment = new Assignment(sem, branch_name, section, sub_code);
-                    assignments.add(assignment);
-                }
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                String scode = rs.getString("scode");
+                String empId = rs.getString("empid");
+                String employeeName = rs.getString("name");
+
+                ClassAssignment assignment = new ClassAssignment(scode, empId, employeeName);
+                assignments.add(assignment);
             }
+        } catch (SQLException e) {
+            Log.d("DataFetcher", "Some error occurred while fetching the employee assignments!");
         }
-
         return assignments;
     }
-    public List<Assignment> fetchAssignments(String scheme, String branch_name, int year, int sem, String section) throws SQLException {
 
-        String branch_code = BranchYearExtractor.generateBranchCode(branch_name, String.valueOf(year));
+    //for the take attendance fragment, in the class selection dialogue
+    public List<EmployeeAssignment> getEmployeeAssignments(String empId) {
+        List<EmployeeAssignment> assignments = new ArrayList<>();
+        String query = "SELECT course.branch, course.sem, assignments.section, course.scode " +
+                "FROM course " +
+                "INNER JOIN assignments ON assignments.courseid = course.courseid " +
+                "WHERE assignments.empid = ?";
 
-        query = "select scode, employee_name, employee_id from AssignmentsTable where branch = ? and sem = ? and section = ? and scheme = ?";
-        try(PreparedStatement pst = con.prepareStatement(query)){
-            pst.setInt(1, Integer.parseInt(branch_code));
-            pst.setInt(2, sem);
-            pst.setString(3, section);
-            pst.setString(4, scheme);
+        try (PreparedStatement stmt = con.prepareStatement(query)) {
+            stmt.setString(1, empId);
 
-            try(ResultSet rs = pst.executeQuery()){
-                classAssignments.clear();
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                int branch = rs.getInt("branch");
+                int sem = rs.getInt("sem");
+                String section = rs.getString("section");
+                String scode = rs.getString("scode");
 
-                while(rs.next()){
-                    String sub_code = rs.getString("scode");
-                    String emp_id = rs.getString("employee_id");
-                    String emp_name = rs.getString("employee_name");
-
-                    classAssignments.add(new Assignment(sub_code, emp_name, emp_id));
-                }
+                EmployeeAssignment assignment = new EmployeeAssignment(branch, sem, section, scode);
+                assignments.add(assignment);
             }
+        } catch (SQLException e) {
+            Log.d("DataFetcher", "Some error occurred while fetching the class assignments!");
         }
-
-        return classAssignments;
+        return assignments;
     }
 
     public List<String> fetchStudents(String class_name) throws SQLException {

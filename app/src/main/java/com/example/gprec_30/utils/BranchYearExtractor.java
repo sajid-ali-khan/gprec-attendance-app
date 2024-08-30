@@ -68,6 +68,10 @@ public class BranchYearExtractor {
         return branch_name;
     }
 
+    public static int getYear(int branch){
+        return branch%10;
+    }
+
 
     private static boolean isValidBranch(String branch) {
         return branch != null && branch.length() == 2 && Character.isDigit(branch.charAt(0)) && Character.isDigit(branch.charAt(1));

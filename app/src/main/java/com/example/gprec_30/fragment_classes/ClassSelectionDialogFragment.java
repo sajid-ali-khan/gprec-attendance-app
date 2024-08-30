@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.Toast;
@@ -12,8 +11,9 @@ import android.widget.Toast;
 import androidx.fragment.app.DialogFragment;
 
 import com.example.gprec_30.R;
-import com.example.gprec_30.utils.Assignment;
+import com.example.gprec_30.utils.BranchYearExtractor;
 import com.example.gprec_30.utils.DataFetcher;
+import com.example.gprec_30.utils.EmployeeAssignment;
 import com.example.gprec_30.utils.SpinnerHelper;
 
 import java.sql.SQLException;
@@ -33,7 +33,7 @@ public class ClassSelectionDialogFragment extends DialogFragment {
 
     ClassSelectionListener mListener;
 
-    List<Assignment> assignments;
+    List<EmployeeAssignment> assignments;
     DataFetcher dataFetcher = new DataFetcher();
 
     String selectedClass;
@@ -68,15 +68,10 @@ public class ClassSelectionDialogFragment extends DialogFragment {
     }
 
     public void loadClasses(){
-        try {
-            assignments = dataFetcher.fetchAssignments(emp_id);
-        } catch (SQLException e) {
-            Toast.makeText(requireContext(), "Couldn't fetch the assignments of "+emp_id, Toast.LENGTH_SHORT).show();
-            return;
-        }
+        assignments = dataFetcher.getEmployeeAssignments(emp_id);
 
         List<String> assignmentCodes = assignments.stream().map(assignment ->
-                        assignment.getSem() + " " + assignment.getBranch() + " " + assignment.getSection() + " " + assignment.getSubCode())
+                        assignment.getYear()+ " year "+assignment.getBranch() +" "+ assignment.getSection()+" "+assignment.getScode())
                 .collect(Collectors.toList());
 
         SpinnerHelper.populateSpinner(spinnerClassSelection, assignmentCodes);

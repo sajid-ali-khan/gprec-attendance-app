@@ -9,11 +9,12 @@
     <!-- Spinner for class selection -->
     <Spinner
         android:id="@+id/spinnerClassSelection"
+        style="@android:style/Widget.Holo.Light.Spinner"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
-        android:prompt="@string/ph_class"
-        style="@android:style/Widget.Holo.Light.Spinner"/>
+        android:minHeight="48dp"
+        android:prompt="@string/ph_class" />
 
     <!-- Button to submit the dialog -->
     <Button
