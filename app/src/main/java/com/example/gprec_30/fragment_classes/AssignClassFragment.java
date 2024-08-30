@@ -230,11 +230,12 @@ public class AssignClassFragment extends Fragment {
                 {
 
                     try (Connection con = DatabaseHelper.SQLConnection()) {
-                        String insertQuery = "INSERT INTO assignments (empid, courseid, reg_code) VALUES (?, ?, ?)";
+                        String insertQuery = "INSERT INTO assignments (empid, courseid, reg_code, section) VALUES (?, ?, ?, ?)";
                         try (PreparedStatement pst = con.prepareStatement(insertQuery)) {
                             pst.setString(1, String.valueOf(empId));
                             pst.setInt(2, courseId);
                             pst.setString(3, reg_code);
+                            pst.setString(4, selectedSection);
 
                             int rowsAffected = pst.executeUpdate();
                             if (rowsAffected > 0) {
@@ -331,11 +332,12 @@ public class AssignClassFragment extends Fragment {
     private boolean isDataExists() throws SQLException {
         Connection con= DatabaseHelper.SQLConnection();
 
-        String query = "select assignment_id from assignments where empid = ? and courseid = ? and reg_code = ?";
+        String query = "select assignment_id from assignments where empid = ? and courseid = ? and reg_code = ? and section = ?";
         try (PreparedStatement pst = con.prepareStatement(query)) {
             pst.setInt(1, empId);
             pst.setInt(2, courseId);
             pst.setString(3, reg_code);
+            pst.setString(4, selectedSection);
             try (ResultSet rs = pst.executeQuery()) {
                 if (rs.next()) {
                     assignment_id = rs.getInt("assignment_id");
