@@ -25,7 +25,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 
 public class AssignClassFragment extends Fragment {
@@ -226,9 +229,9 @@ public class AssignClassFragment extends Fragment {
             courseId = dataFetcher.getCourseId(selectedScheme, selectedBranchYear, selectedSemester, sub_code, sub_name);
             reg_code = RegesterCodeCreator.createRegCode(selectedScheme, selectedBranch, selectedSemester, selectedSection, sub_code);
             Log.d("AssignClass", "courseId = "+courseId + ", reg_code = "+reg_code);
-            if(!isDataExists()){
+            if(dataExists()){
                 {
-
+                    //making an entry into the assignments table
                     try (Connection con = DatabaseHelper.SQLConnection()) {
                         String insertQuery = "INSERT INTO assignments (empid, courseid, reg_code, section) VALUES (?, ?, ?, ?)";
                         try (PreparedStatement pst = con.prepareStatement(insertQuery)) {
@@ -239,8 +242,9 @@ public class AssignClassFragment extends Fragment {
 
                             int rowsAffected = pst.executeUpdate();
                             if (rowsAffected > 0) {
-                                Toast.makeText(requireContext(), "Data submitted successfully.", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(requireContext(), "Assignment added successfully.", Toast.LENGTH_SHORT).show();
                                 // Clear the selection fields after successful submission
+                                createRegister();
                                 clearSelectionFields();
                             } else {
                                 Toast.makeText(requireContext(), "Error occured while submitting the data!", Toast.LENGTH_SHORT).show();
@@ -248,7 +252,7 @@ public class AssignClassFragment extends Fragment {
                         }
                     } catch (SQLException e) {
                         showToast(e.getMessage());
-                        Log.d("Assignments", e.getMessage());
+                        Log.d("Assignments", Objects.requireNonNull(e.getMessage()));
                     }
                 }
             }else {
@@ -256,10 +260,65 @@ public class AssignClassFragment extends Fragment {
             }
         }
 
-        // Perform your logic for assigning the class here
-        // This might involve database operations or other actions
-        // You can pass these values to a method that handles the assignment process
     }
+
+    private void createRegister() throws SQLException {
+        // Define the table name
+        String reg_name = "class_" + reg_code;
+
+        // SQL command to create the table
+        String createTableSQL = "CREATE TABLE " + reg_name + " (date DATE PRIMARY KEY DEFAULT CONVERT(DATE, GETDATE()))";
+
+        // Create the table
+        try (Connection con = DatabaseHelper.SQLConnection();
+             Statement st = con.createStatement()) {
+            st.executeUpdate(createTableSQL);
+            Toast.makeText(requireContext(), "Reg table created successfully.", Toast.LENGTH_SHORT).show();
+        } catch (SQLException e) {
+            Log.d("AssignClass", Objects.requireNonNull(e.getMessage()));
+            Toast.makeText(requireContext(), "Deleting the assignment..", Toast.LENGTH_SHORT).show();
+            performDeletion();
+            return;
+        }
+
+        // Fetch student roll numbers
+        List<String> rolls = new ArrayList<>();
+        String fetchRollsSQL = "SELECT rollno FROM students WHERE branch = ? AND sec = ?";
+
+        try (Connection con = DatabaseHelper.SQLConnection();
+             PreparedStatement ps = con.prepareStatement(fetchRollsSQL)) {
+            ps.setInt(1, Integer.parseInt(selectedBranchYear));
+            ps.setString(2, selectedSection);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                rolls.add(rs.getString("rollno"));
+            }
+        } catch (SQLException e) {
+            Log.d("AssignClass", "Fetching rolls error: " + e.getMessage());
+            Toast.makeText(requireContext(), "deleting the assignment..", Toast.LENGTH_SHORT).show();
+            performDeletion();
+            return;
+        }
+
+        // Add columns for each roll number
+        try (Connection con = DatabaseHelper.SQLConnection();
+             Statement st = con.createStatement()) {
+            for (String roll : rolls) {
+                // Sanitize roll number to avoid SQL injection and ensure valid column names
+                String sanitizedRoll = roll.replaceAll("[^a-zA-Z0-9]", "_");
+                String addColumnSQL = "ALTER TABLE " + reg_name + " ADD roll_" + sanitizedRoll + " BIT";
+                st.executeUpdate(addColumnSQL);
+            }
+
+            Toast.makeText(requireContext(), "Columns added successfully.", Toast.LENGTH_SHORT).show();
+        } catch (SQLException e) {
+            Log.d("AssignClass", "Error during adding students to reg table: \n" + e.getMessage());
+            Toast.makeText(requireContext(), "deleting assignment....", Toast.LENGTH_SHORT).show();
+            performDeletion();
+        }
+    }
+
 
     private void performDeletion() throws SQLException {
         Connection con=DatabaseHelper.SQLConnection();
@@ -268,7 +327,7 @@ public class AssignClassFragment extends Fragment {
             Toast.makeText(requireContext(), "Please select the employee.", Toast.LENGTH_SHORT).show();
         }
 
-        if(!isDataExists()){
+        if(dataExists()){
             Toast.makeText(requireContext(), "The Record doesn't exist.", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -292,13 +351,11 @@ public class AssignClassFragment extends Fragment {
             Log.e("HomeActivity", "SQLException in submitSelectionsToDatabase", e);
             Toast.makeText(requireContext(), "Database error occurred.", Toast.LENGTH_SHORT).show();
         }
+        con.close();
     }
 
     private boolean allSelected(){
-        if(selectedScheme.equals(ph_scheme) || selectedBranch.equals(ph_branch) || selectedYear.equals(ph_year) || selectedSemester.equals(ph_sem) || selectedSection.equals(ph_sec)|| selectedSubject.equals(ph_sub) || selectedEmployee.isEmpty()){
-            return false;
-        }
-        return true;
+        return !selectedScheme.equals(ph_scheme) && !selectedBranch.equals(ph_branch) && !selectedYear.equals(ph_year) && !selectedSemester.equals(ph_sem) && !selectedSection.equals(ph_sec) && !selectedSubject.equals(ph_sub) && !selectedEmployee.isEmpty();
     }
 
     private void showConfirmationDialog(){
@@ -329,11 +386,10 @@ public class AssignClassFragment extends Fragment {
         builder.setNegativeButton("No", null);
         builder.show();
     }
-    private boolean isDataExists() throws SQLException {
-        Connection con= DatabaseHelper.SQLConnection();
-
+    private boolean dataExists() throws SQLException {
         String query = "select assignment_id from assignments where empid = ? and courseid = ? and reg_code = ? and section = ?";
-        try (PreparedStatement pst = con.prepareStatement(query)) {
+
+        try (Connection con = DatabaseHelper.SQLConnection(); PreparedStatement pst = con.prepareStatement(query)) {
             pst.setInt(1, empId);
             pst.setInt(2, courseId);
             pst.setString(3, reg_code);
@@ -341,14 +397,14 @@ public class AssignClassFragment extends Fragment {
             try (ResultSet rs = pst.executeQuery()) {
                 if (rs.next()) {
                     assignment_id = rs.getInt("assignment_id");
-                    return true;
+                    return false;
                 }
             }
         } catch (SQLException e) {
             Log.e("HomeActivity", "Error checking data existence: " + e.getMessage(), e);
             throw e;
         }
-        return false;
+        return true;
     }
 
     private void showToast(String message){

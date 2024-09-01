@@ -12,7 +12,7 @@ public class RegesterCodeCreator {
                 c_year -= 1;
             }
             int n_year = ((c_year%100)+1)%100;
-            String academic_year = String.valueOf(c_year)+"-"+String.valueOf(n_year);
+            String academic_year = c_year +"_"+ n_year;
             reg_code += academic_year + "_"+selectedScheme+"_"+selectedBranch+"_"+selectedSemester+"_"+selectedSection;
         }else{
             throw new RuntimeException("Time not compatable with your mobile.");
