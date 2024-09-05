@@ -6,7 +6,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -189,6 +188,25 @@ public class DataFetcher {
         return assignments;
     }
 
+    public List<String> getEmployeeAssignmentsSimple(String empid){
+        List<String> assignments = new ArrayList<>();
+
+        String q = "select reg_code from assignments where empid = ?";
+
+        try(PreparedStatement pst = con.prepareStatement(q)){
+            pst.setString(1, empid);
+
+            ResultSet rs = pst.executeQuery();
+
+            while (rs.next()){
+                assignments.add(rs.getString("reg_code"));
+            }
+        }catch(SQLException e){
+            Log.d("Simple employee assignments fetcher", "Error in simple: "+e.getMessage());
+        }
+
+        return assignments;
+    }
     //for the take attendance fragment, in the class selection dialogue
     public List<EmployeeAssignment> getEmployeeAssignments(String empId) {
         List<EmployeeAssignment> assignments = new ArrayList<>();
@@ -216,43 +234,7 @@ public class DataFetcher {
         return assignments;
     }
 
-    public List<String> fetchStudents(String class_name) throws SQLException {
 
-        String[] parts = class_name.split(" ");
-        int sem = Integer.parseInt(parts[0]);
-        String branch_name = parts[1];
-        String section = parts[2];
-        int year = (sem % 2 == 0 ? sem/2 : sem/2+1);
-
-        String branch = BranchYearExtractor.generateBranchCode(branch_name, String.valueOf(year));
-
-        Log.d("dataFetcher",
-                "sem : "+sem+", sec : "+section + ", branch : "+ branch
-                );
-
-        query = "select distinct rollno, name from StudentTable where sem = ? and sec = ? and BRANCH = ?";
-
-        try(PreparedStatement pst = con.prepareStatement(query)){
-            pst.setInt(1, sem);
-            pst.setString(2, section);
-            pst.setString(3, branch);
-            Log.d("Datafetcher","Statement created ....");
-
-            try(ResultSet rs = pst.executeQuery()){
-                students.clear();
-
-                Log.d("datafetcher","Statement executed....");
-
-                while(rs.next()){
-                    String roll = rs.getString("ROLLNO");
-                    String name = rs.getString("NAME");
-
-                    students.add(roll+" "+name);
-                }
-            }
-        }
-        return students;
-    }
 
     public int getCourseId(String selectedScheme, String selectedBranchYear, String selectedSemester, String subCode, String selectedSubject) {
         int courseId;
@@ -273,6 +255,28 @@ public class DataFetcher {
             throw new RuntimeException(e);
         }
         return -1;
+    }
+
+    public List<String> fetchStudents(EmployeeAssignment selectedClass) {
+        List<String> students = new ArrayList<>();
+
+        String q = "select rollno, name from students where branch = ? and sec = ? and sem = ?";
+
+        try(PreparedStatement pst = con.prepareStatement(q)){
+            pst.setInt(1, selectedClass.getBranch());
+            pst.setString(2, selectedClass.getSection());
+            pst.setInt(3, selectedClass.getSem());
+
+            ResultSet rs = pst.executeQuery();
+
+            while(rs.next()){
+                students.add(rs.getString(1)+" "+rs.getString(2));
+            }
+        }catch(SQLException e){
+            Log.d("Data fetcher", "Error fetching the students : \n"+e.getMessage());
+        }
+
+        return students;
     }
 }
 

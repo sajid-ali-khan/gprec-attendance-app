@@ -68,13 +68,15 @@ public class ClassSelectionDialogFragment extends DialogFragment {
     }
 
     public void loadClasses(){
-        assignments = dataFetcher.getEmployeeAssignments(emp_id);
+//        assignments = dataFetcher.getEmployeeAssignments(emp_id);
+        List<String> simples = dataFetcher.getEmployeeAssignmentsSimple(emp_id);
 
-        List<String> assignmentCodes = assignments.stream().map(assignment ->
-                        assignment.getYear()+ " year "+assignment.getBranch() +" "+ assignment.getSection()+" "+assignment.getScode())
-                .collect(Collectors.toList());
+//        List<String> assignmentCodes = assignments.stream().map(assignment ->
+//                        assignment.getYear()+ " year "+assignment.getBranchName() +" "+ assignment.getSection()+" "+assignment.getScode())
+//                .collect(Collectors.toList());
 
-        SpinnerHelper.populateSpinner(spinnerClassSelection, assignmentCodes);
+
+        SpinnerHelper.populateSpinner(spinnerClassSelection, simples);
     }
 
     public void setListener(ClassSelectionListener listener) {

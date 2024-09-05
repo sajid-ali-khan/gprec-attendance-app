@@ -1,12 +1,11 @@
 package com.example.gprec_30.utils;
 
 public class EmployeeAssignment {
-    private int branch;  // Branch of the course
-    private int sem;  // Semester
-    private String section;  // Section assigned
-    private String scode;  // Subject code
+    private int branch;
+    private int sem;
+    private String section;
+    private String scode;
 
-    // Constructor, getters, and setters
     public EmployeeAssignment(int branch, int sem, String section, String scode) {
         this.branch = branch;
         this.sem = sem;
@@ -14,8 +13,19 @@ public class EmployeeAssignment {
         this.scode = scode;
     }
 
-    // Getters and Setters
-    public String getBranch() {
+
+
+    public EmployeeAssignment(int branch, int sem, String section) {
+        this.branch = branch;
+        this.sem = sem;
+        this.section = section;
+    }
+
+    public int getBranch(){
+        return branch;
+    }
+
+    public String getBranchName() {
         return BranchYearExtractor.getBranchName(branch);
     }
 
