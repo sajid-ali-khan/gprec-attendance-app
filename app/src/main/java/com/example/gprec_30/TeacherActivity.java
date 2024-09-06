@@ -1,7 +1,6 @@
 package com.example.gprec_30;
 
 import android.annotation.SuppressLint;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.FrameLayout;
@@ -14,12 +13,9 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.example.gprec_30.fragment_classes.ChangePasswordFragment;
-import com.example.gprec_30.fragment_classes.ClassSelectionDialogFragment;
-import com.example.gprec_30.fragment_classes.SeeAssignmentsFragment;
+import com.example.gprec_30.fragment_classes.HomeFragment;
 import com.example.gprec_30.fragment_classes.TakeAttendanceFragment;
 import com.google.android.material.navigation.NavigationView;
-
-import java.util.Objects;
 
 public class TeacherActivity extends AppCompatActivity {
 
@@ -61,14 +57,16 @@ public class TeacherActivity extends AppCompatActivity {
 
         // Replace the container with the TakeAttendanceFragment
         getSupportFragmentManager().beginTransaction()
-                .replace(container.getId(), takeAttendanceFragment)
+                .replace(container.getId(), new HomeFragment())
                 .commit();
 
         // Set a listener on the navigation drawer to handle item clicks
         navigationView.setNavigationItemSelectedListener(menuItem -> {
             // Handle navigation item clicks here
             int id = menuItem.getItemId();
-            if (id == R.id.nav_take_attendance) {
+            if (id == R.id.nav_home){
+                getSupportFragmentManager().beginTransaction().replace(R.id.container, new HomeFragment()).commit();
+            }else if (id == R.id.nav_take_attendance) {
                 // Create the fragment instance and set the arguments
                 TakeAttendanceFragment fragment = new TakeAttendanceFragment();
                 fragment.setArguments(bundle);

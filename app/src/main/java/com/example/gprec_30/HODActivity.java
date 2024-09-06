@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.FrameLayout;
-import android.widget.Toast;
 
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
@@ -13,6 +12,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.example.gprec_30.fragment_classes.ChangePasswordFragment;
+import com.example.gprec_30.fragment_classes.HomeFragment;
 import com.example.gprec_30.fragment_classes.SeeAssignmentsFragment;
 import com.example.gprec_30.fragment_classes.TakeAttendanceFragment;
 import com.google.android.material.navigation.NavigationView;
@@ -53,13 +53,16 @@ public class HODActivity extends AppCompatActivity {
         takeAttendanceFragment.setArguments(bundle);
 
         getSupportFragmentManager().beginTransaction()
-                .replace(container.getId(), takeAttendanceFragment)
+                .replace(container.getId(), new HomeFragment())
                 .commit();
 
 
         navigationView.setNavigationItemSelectedListener(menuItem -> {
             int id = menuItem.getItemId();
-            if(id == R.id.nav_see_assignments){
+            if (id == R.id.nav_home){
+                getSupportFragmentManager().beginTransaction().replace(R.id.container, new HomeFragment()).commit();
+            }
+            else if(id == R.id.nav_see_assignments){
                 getSupportFragmentManager().beginTransaction().replace(R.id.container, new SeeAssignmentsFragment()).commit();
             }else if(id == R.id.nav_take_attendance){
                 TakeAttendanceFragment fragment = new TakeAttendanceFragment();

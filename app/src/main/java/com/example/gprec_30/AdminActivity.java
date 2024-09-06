@@ -3,7 +3,6 @@ package com.example.gprec_30;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
@@ -15,6 +14,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.example.gprec_30.fragment_classes.AssignClassFragment;
 import com.example.gprec_30.fragment_classes.ChangePasswordFragment;
+import com.example.gprec_30.fragment_classes.HomeFragment;
 import com.example.gprec_30.fragment_classes.SeeAssignmentsFragment;
 import com.google.android.material.navigation.NavigationView;
 
@@ -54,13 +54,15 @@ public class AdminActivity extends AppCompatActivity {
 
         // Replace the container with the default fragment
         getSupportFragmentManager().beginTransaction()
-                .replace(container.getId(), new AssignClassFragment())
+                .replace(container.getId(), new HomeFragment())
                 .commit();
 
         navigationView.setNavigationItemSelectedListener(menuItem -> {
             int id = menuItem.getItemId();
-
-            if(id == R.id.nav_assign_class){
+            if (id == R.id.nav_home){
+                getSupportFragmentManager().beginTransaction().replace(R.id.container, new HomeFragment()).commit();
+            }
+            else if(id == R.id.nav_assign_class){
                 getSupportFragmentManager().beginTransaction().replace(R.id.container, new AssignClassFragment()).commit();
             }else if(id == R.id.nav_see_assignments){
                 getSupportFragmentManager().beginTransaction().replace(R.id.container, new SeeAssignmentsFragment()).commit();

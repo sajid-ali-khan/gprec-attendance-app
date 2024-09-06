@@ -1,9 +1,9 @@
 package com.example.gprec_30.utils;
 
 public class EmployeeAssignment {
-    private int branch;
-    private int sem;
-    private String section;
+    private final int branch;
+    private final int sem;
+    private final String section;
     private String scode;
 
     public EmployeeAssignment(int branch, int sem, String section, String scode) {

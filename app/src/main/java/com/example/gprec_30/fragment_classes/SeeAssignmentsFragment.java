@@ -94,7 +94,7 @@ public class SeeAssignmentsFragment extends Fragment {
                 try {
                     updateBranchSpinner();
                 } catch (SQLException e) {
-                    Toast.makeText(requireContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(requireContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -106,7 +106,7 @@ public class SeeAssignmentsFragment extends Fragment {
                 try {
                     updateYearSpinner();
                 } catch (SQLException e) {
-                    Toast.makeText(requireContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(requireContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -119,7 +119,7 @@ public class SeeAssignmentsFragment extends Fragment {
                 try {
                     updateSemSpinner();
                 } catch (SQLException e) {
-                    Toast.makeText(requireContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(requireContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             }
         });
