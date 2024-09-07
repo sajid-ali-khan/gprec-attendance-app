@@ -15,6 +15,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.gprec_30.utils.AuthenticationManager;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -30,7 +31,6 @@ public class LoginActivity extends AppCompatActivity {
         et_password = findViewById(R.id.et_pwd);
         CheckBox checkBoxShowPassword = findViewById(R.id.checkBoxShowPassword);
         Button btn_submit = findViewById(R.id.buttonSubmit);
-        Button buttonForgotPassword = findViewById(R.id.buttonForgotPassword);
 
         checkBoxShowPassword.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {
@@ -55,7 +55,6 @@ public class LoginActivity extends AppCompatActivity {
         });
 
 
-        buttonForgotPassword.setOnClickListener(v -> Toast.makeText(LoginActivity.this, "Forgot Password clicked", Toast.LENGTH_SHORT).show());
     }
 
 
@@ -84,7 +83,7 @@ public class LoginActivity extends AppCompatActivity {
     @SuppressLint("MissingSuperCall")
     @Override
     public void onBackPressed() {
-        new AlertDialog.Builder(this)
+        new MaterialAlertDialogBuilder(this)
                 .setMessage("Do you really want to exit?")
                 .setPositiveButton("Exit", (dialog, which) -> {
                     finishAffinity(); // Close all activities in the task, effectively exiting the app

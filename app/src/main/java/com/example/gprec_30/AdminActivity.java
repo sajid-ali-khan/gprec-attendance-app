@@ -16,6 +16,7 @@ import com.example.gprec_30.fragment_classes.AssignClassFragment;
 import com.example.gprec_30.fragment_classes.ChangePasswordFragment;
 import com.example.gprec_30.fragment_classes.HomeFragment;
 import com.example.gprec_30.fragment_classes.SeeAssignmentsFragment;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.navigation.NavigationView;
 
 public class AdminActivity extends AppCompatActivity {
@@ -74,7 +75,7 @@ public class AdminActivity extends AppCompatActivity {
                         .replace(R.id.container, changePasswordFragment)
                         .commit();
             }else if(id == R.id.nav_logout){
-                new AlertDialog.Builder(this)
+                new MaterialAlertDialogBuilder(this)
                         .setTitle("Logout")
                         .setMessage("Do you want to logout?")
                         .setPositiveButton("Logout", (dialog, which) -> logoutUser())
@@ -102,7 +103,7 @@ public class AdminActivity extends AppCompatActivity {
     @SuppressLint("MissingSuperCall")
     @Override
     public void onBackPressed() {
-        new AlertDialog.Builder(this)
+        new MaterialAlertDialogBuilder(this)
                 .setTitle("Logout")
                 .setMessage("Do you want to logout?")
                 .setPositiveButton("Logout", (dialog, which) -> logoutUser())

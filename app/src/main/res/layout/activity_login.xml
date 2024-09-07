@@ -1,98 +1,79 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
     android:padding="16dp">
 
-    <!-- Organization Logo -->
-    <ImageView
-        android:id="@+id/imageViewLogo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/gprec_logo"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="16dp"
-        android:contentDescription="@string/college_logo" />
 
-    <!-- User Login Heading -->
-    <TextView
-        android:id="@+id/textViewUserLogin"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/user_login"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:layout_below="@id/imageViewLogo"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="16dp"/>
-
-    <TextView
-        android:id="@+id/tv_empId"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/user_id"
-        android:textSize="16sp"
-        android:layout_below="@id/textViewUserLogin"
-        android:layout_marginTop="16dp"/>
+        android:orientation="vertical"
+        android:padding="12dp">
 
-    <EditText
-        android:id="@+id/et_emp_id"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/tv_empId"
-        android:layout_marginTop="8dp"
-        android:background="@drawable/edit_text_border"
-        android:minHeight="48dp"
-        android:padding="8dp"
-        tools:ignore="SpeakableTextPresentCheck"
-        android:autofillHints="Employee ID" />
+        <ImageView
+            android:id="@+id/imageViewLogo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/gprec_logo"
+            android:layout_marginBottom="16dp"
+            android:layout_gravity="center_horizontal"
+            android:contentDescription="@string/college_logo" />
 
-    <TextView
-        android:id="@+id/tv_pwd"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/password"
-        android:textSize="16sp"
-        android:layout_below="@id/et_emp_id"
-        android:layout_marginTop="16dp"/>
 
-    <EditText
-        android:id="@+id/et_pwd"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/tv_pwd"
-        android:layout_marginTop="8dp"
-        android:background="@drawable/edit_text_border"
-        android:inputType="textPassword"
-        android:minHeight="48dp"
-        android:padding="8dp"
-        tools:ignore="SpeakableTextPresentCheck"
-        android:autofillHints="Password" />
+        <EditText
+            android:id="@+id/et_emp_id"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="40dp"
+            android:autofillHints="Employee ID"
+            android:background="@drawable/edit_text_border"
+            android:hint="Employee Id"
+            android:minHeight="48dp"
+            android:padding="8dp"
+            android:textColorHint="#757575"
+            tools:ignore="SpeakableTextPresentCheck" />
 
-    <CheckBox
-        android:id="@+id/checkBoxShowPassword"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/show_password"
-        android:layout_below="@id/et_pwd"
-        android:layout_marginTop="8dp"/>
 
-    <Button
-        android:id="@+id/buttonSubmit"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/checkBoxShowPassword"
-        android:layout_marginTop="16dp"
-        android:text="@string/submit" />
+        <EditText
+            android:id="@+id/et_pwd"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:autofillHints="Password"
+            android:background="@drawable/edit_text_border"
+            android:hint="Password"
+            android:inputType="textPassword"
+            android:minHeight="48dp"
+            android:padding="8dp"
+            android:textColorHint="#757575"
+            tools:ignore="SpeakableTextPresentCheck" />
 
-    <Button
-        android:id="@+id/buttonForgotPassword"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/buttonSubmit"
-        android:layout_marginTop="16dp"
-        android:layout_alignParentEnd="true"
-        android:text="@string/forgot_password"/>
+        <CheckBox
+            android:id="@+id/checkBoxShowPassword"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/show_password"
+            android:layout_marginTop="8dp"/>
 
-</RelativeLayout>
+        <Button
+            android:id="@+id/buttonSubmit"
+            android:layout_width="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="@string/submit" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:padding="4dp"
+            android:textColor="#00f"
+            android:text="Forgot Password?"/>
+    </LinearLayout>
+
+</LinearLayout>

@@ -15,6 +15,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import com.example.gprec_30.fragment_classes.ChangePasswordFragment;
 import com.example.gprec_30.fragment_classes.HomeFragment;
 import com.example.gprec_30.fragment_classes.TakeAttendanceFragment;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.navigation.NavigationView;
 
 public class TeacherActivity extends AppCompatActivity {
@@ -88,7 +89,7 @@ public class TeacherActivity extends AppCompatActivity {
                         .commit();
             } else if (id == R.id.nav_logout) {
                 // Display logout confirmation dialog
-                new AlertDialog.Builder(this)
+                new MaterialAlertDialogBuilder(this)
                         .setTitle("Logout")
                         .setMessage("Do you want to logout?")
                         .setPositiveButton("Logout", (dialog, which) -> logoutUser())
@@ -115,7 +116,7 @@ public class TeacherActivity extends AppCompatActivity {
     @SuppressLint("MissingSuperCall")
     @Override
     public void onBackPressed() {
-        new AlertDialog.Builder(this)
+        new MaterialAlertDialogBuilder(this)
                 .setTitle("Logout")
                 .setMessage("Do you want to logout?")
                 .setPositiveButton("Logout", (dialog, which) -> logoutUser())

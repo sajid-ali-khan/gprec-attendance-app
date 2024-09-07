@@ -20,6 +20,7 @@ import com.example.gprec_30.utils.DataFetcher;
 import com.example.gprec_30.utils.DatabaseHelper;
 import com.example.gprec_30.utils.RegesterCodeCreator;
 import com.example.gprec_30.utils.SpinnerHelper;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -359,7 +360,7 @@ public class AssignClassFragment extends Fragment {
     }
 
     private void showConfirmationDialog(){
-        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext());
         builder.setTitle("Confirmation");
         builder.setMessage("Do you want to submit the data ?");
         builder.setPositiveButton("Yes", ((dialog, which) -> {
@@ -373,7 +374,7 @@ public class AssignClassFragment extends Fragment {
         builder.show();
     }
     private void showDeleteConfirmationDialog() {
-        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(requireContext());
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext());
         builder.setTitle("Data Exists");
         builder.setMessage("Data already exists. Do you want to delete it?");
         builder.setPositiveButton("Yes", (dialog, which) -> {

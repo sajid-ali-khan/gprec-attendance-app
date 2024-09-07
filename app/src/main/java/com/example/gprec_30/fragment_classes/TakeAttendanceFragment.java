@@ -110,7 +110,7 @@ public class TakeAttendanceFragment extends Fragment {
     }
 
     private void showSubmitConfirmationDialog() {
-        new AlertDialog.Builder(requireContext())
+        new MaterialAlertDialogBuilder(requireContext())
                 .setTitle("Submit")
                 .setMessage("Do you want to submit?")
                 .setPositiveButton("Submit", (dialogInterface, i) -> {
