@@ -1,8 +1,8 @@
-package com.example.gprec_30.utils;
+package com.example.gprec_30.utils.auths;
 
-import android.content.Context;
 import android.util.Log;
-import android.widget.Toast;
+
+import com.example.gprec_30.utils.DatabaseHelper;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -11,10 +11,7 @@ import java.sql.SQLException;
 
 public class AuthenticationManager {
 
-    private String role = "";
-
-    public boolean authenticateUser(String emp_id, String password, Context context) {
-        boolean isAuthenticated = false;
+    public static AuthResult authenticateUser(String emp_id, String password) {
         String query = "select empid, pwd, role from Employee where empid = ?";
 
         try (Connection con = DatabaseHelper.SQLConnection()) {
@@ -25,37 +22,27 @@ public class AuthenticationManager {
                         if (rs.next()) {
                             String og_pwd = rs.getString("pwd");
                             if (og_pwd.equals(password)) {
-                                role = rs.getString("role");
-                                return true;
+                                String role = rs.getString("role");
+                                return new AuthResult(AuthStatus.SUCCESS, role);
                             } else {
-                                showToast(context, "Incorrect password!");
-                                return false;
+                                return new AuthResult(AuthStatus.INCORRECT_PASSWORD, null);
                             }
                         } else {
-                            showToast(context, "User doesn't exist.");
-                            return false;
+                            return new AuthResult(AuthStatus.USER_NOT_FOUND, null);
                         }
                     } catch (Exception e) {
-                        showToast(context, e.getMessage());
+                        Log.d("AuthenticationManager", "authenticateUser: "+e.getMessage());
+                        return new AuthResult(AuthStatus.ERROR, null);
                     }
                 }
             } else {
-                showToast(context, "Failed to connect to the database.");
+                return new AuthResult(AuthStatus.FAILED_CONNECTION, null);
             }
         } catch (SQLException e) {
             Log.e("AuthenticationManager", "Error while authenticating user", e);
-            showToast(context, "An error occurred. Please try again later.");
+            return new AuthResult(AuthStatus.ERROR, null);
         }
-
-        return isAuthenticated;
-    }
-
-    public static void showToast(Context context, String text) {
-        Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
-    }
-
-
-    public String getRole() {
-        return role;
     }
 }
+
+

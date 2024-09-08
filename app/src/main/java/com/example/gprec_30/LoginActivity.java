@@ -11,21 +11,27 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.gprec_30.utils.AuthenticationManager;
+import com.example.gprec_30.utils.auths.AuthResult;
+import com.example.gprec_30.utils.auths.AuthenticationManager;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class LoginActivity extends AppCompatActivity {
 
-    private String emp_id = "";
     private EditText et_userId, et_password;
+
+    ExecutorService service;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        service = Executors.newSingleThreadExecutor();
 
         et_userId = findViewById(R.id.et_emp_id);
         et_password = findViewById(R.id.et_pwd);
@@ -42,23 +48,39 @@ public class LoginActivity extends AppCompatActivity {
         });
 
         btn_submit.setOnClickListener(v -> {
-            emp_id = et_userId.getText().toString().trim().toLowerCase();
-            String password = et_password.getText().toString().trim();
+            service.execute(() -> {
+                String empid = et_userId.getText().toString().trim();
+                String password = et_password.getText().toString().trim();
 
-            AuthenticationManager authenticator = new AuthenticationManager(); // Instantiate here
+                AuthResult authResult = AuthenticationManager.authenticateUser(empid, password);
 
-            if(authenticator.authenticateUser(emp_id, password, this)){
-                showToast("Login Successful");
-                String role = authenticator.getRole();
-                navigateToRoleActivity(role);
-            }
+                runOnUiThread(() -> {
+                    switch(authResult.getStatus()){
+                        case SUCCESS:
+                            showToast("Login Successful");
+                            navigateToRoleActivity(authResult.getRole(), empid);
+                            break;
+                        case INCORRECT_PASSWORD:
+                            showToast("Incorrect Password");
+                            break;
+                        case USER_NOT_FOUND:
+                            showToast("User not found");
+                            break;
+                        case FAILED_CONNECTION:
+                            showToast("Failed connecting to database.");
+                            break;
+                        case ERROR:
+                            showToast("Error!!");
+                    }
+                });
+            });
         });
 
 
     }
 
 
-    private void navigateToRoleActivity(String role) {
+    private void navigateToRoleActivity(String role, String emp_id) {
         Intent intent;
         switch (role.toLowerCase()) {
             case "teacher":
