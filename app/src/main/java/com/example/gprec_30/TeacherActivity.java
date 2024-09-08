@@ -7,7 +7,6 @@ import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -21,8 +20,6 @@ import com.google.android.material.navigation.NavigationView;
 public class TeacherActivity extends AppCompatActivity {
 
     private DrawerLayout drawerLayout;
-    private NavigationView navigationView;
-    private Toolbar toolbar;
 
     String emp_id;
 
@@ -34,8 +31,8 @@ public class TeacherActivity extends AppCompatActivity {
         emp_id = getIntent().getStringExtra("emp_id");
 
         drawerLayout = findViewById(R.id.drawer_layout);
-        navigationView = findViewById(R.id.navigation_view);
-        toolbar = findViewById(R.id.toolbar);
+        NavigationView navigationView = findViewById(R.id.navigation_view);
+        Toolbar toolbar = findViewById(R.id.toolbar);
 
         // Set the Toolbar as the ActionBar
         setSupportActionBar(toolbar);

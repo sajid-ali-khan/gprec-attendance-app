@@ -47,34 +47,32 @@ public class LoginActivity extends AppCompatActivity {
             et_password.setSelection(et_password.getText().length());
         });
 
-        btn_submit.setOnClickListener(v -> {
-            service.execute(() -> {
-                String empid = et_userId.getText().toString().trim();
-                String password = et_password.getText().toString().trim();
+        btn_submit.setOnClickListener(v -> service.execute(() -> {
+            String empid = et_userId.getText().toString().trim();
+            String password = et_password.getText().toString().trim();
 
-                AuthResult authResult = AuthenticationManager.authenticateUser(empid, password);
+            AuthResult authResult = AuthenticationManager.authenticateUser(empid, password);
 
-                runOnUiThread(() -> {
-                    switch(authResult.getStatus()){
-                        case SUCCESS:
-                            showToast("Login Successful");
-                            navigateToRoleActivity(authResult.getRole(), empid);
-                            break;
-                        case INCORRECT_PASSWORD:
-                            showToast("Incorrect Password");
-                            break;
-                        case USER_NOT_FOUND:
-                            showToast("User not found");
-                            break;
-                        case FAILED_CONNECTION:
-                            showToast("Failed connecting to database.");
-                            break;
-                        case ERROR:
-                            showToast("Error!!");
-                    }
-                });
+            runOnUiThread(() -> {
+                switch(authResult.getStatus()){
+                    case SUCCESS:
+                        showToast("Login Successful");
+                        navigateToRoleActivity(authResult.getRole(), empid);
+                        break;
+                    case INCORRECT_PASSWORD:
+                        showToast("Incorrect Password");
+                        break;
+                    case USER_NOT_FOUND:
+                        showToast("User not found");
+                        break;
+                    case FAILED_CONNECTION:
+                        showToast("Failed connecting to database.");
+                        break;
+                    case ERROR:
+                        showToast("Error!!");
+                }
             });
-        });
+        }));
 
 
     }
