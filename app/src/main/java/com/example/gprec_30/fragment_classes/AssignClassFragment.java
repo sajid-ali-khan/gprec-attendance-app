@@ -1,6 +1,5 @@
 package com.example.gprec_30.fragment_classes;
 
-import android.app.AlertDialog;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -9,6 +8,8 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -18,9 +19,11 @@ import com.example.gprec_30.R;
 import com.example.gprec_30.utils.BranchYearExtractor;
 import com.example.gprec_30.utils.DataFetcher;
 import com.example.gprec_30.utils.DatabaseHelper;
+import com.example.gprec_30.utils.HintArrayAdapter;
 import com.example.gprec_30.utils.RegesterCodeCreator;
 import com.example.gprec_30.utils.SpinnerHelper;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -42,6 +45,8 @@ public class AssignClassFragment extends Fragment {
     private String sub_name, sub_code;
     private int assignment_id;
     int empId;
+
+    LinearLayout layout;
 
     DataFetcher dataFetcher = new DataFetcher();
 
@@ -65,6 +70,7 @@ public class AssignClassFragment extends Fragment {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_assign_class, container, false);
 
+        layout = rootView.findViewById(R.id.main);
         // Initialize views
         spinnerScheme = rootView.findViewById(R.id.spinnerScheme);
         spinnerBranch = rootView.findViewById(R.id.spinnerBranch);
@@ -93,7 +99,7 @@ public class AssignClassFragment extends Fragment {
             loadSchemeSpinner();
             loadEmployees();
         } catch (SQLException e) {
-            Toast.makeText(requireContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+            logError(e.getMessage());
         }
 
         return rootView;
@@ -103,11 +109,17 @@ public class AssignClassFragment extends Fragment {
         spinnerScheme.setOnItemSelectedListener(new SpinnerHelper.SpinnerItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                selectedScheme = parent.getItemAtPosition(position).toString();
-                try {
-                    updateBranchSpinner();
-                } catch (SQLException e) {
-//                    Toast.makeText(requireContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                if (position == 0){
+                    //ignore
+                    selectedScheme = "";
+                }else{
+                    selectedScheme = schemes.get(position);
+                    showSnackBar(selectedScheme);
+                    try {
+                        updateBranchSpinner();
+                    } catch (SQLException e) {
+                        logError(e.getMessage());
+                    }
                 }
             }
         });
@@ -115,11 +127,16 @@ public class AssignClassFragment extends Fragment {
         spinnerBranch.setOnItemSelectedListener(new SpinnerHelper.SpinnerItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                selectedBranch = parent.getItemAtPosition(position).toString();
-                try {
-                    updateYearSpinner();
-                } catch (SQLException e) {
-//                    Toast.makeText(requireContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                if (position == 0){
+                    selectedBranch = "";
+                }else{
+                    selectedBranch = branches.get(position);
+                    showSnackBar(selectedBranch);
+                    try {
+                        updateYearSpinner();
+                    } catch (SQLException e) {
+                        logError(e.getMessage());
+                    }
                 }
             }
         });
@@ -127,12 +144,18 @@ public class AssignClassFragment extends Fragment {
         spinnerYear.setOnItemSelectedListener(new SpinnerHelper.SpinnerItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                selectedYear = parent.getItemAtPosition(position).toString();
-                selectedBranchYear = BranchYearExtractor.generateBranchCode(selectedBranch, selectedYear);
-                try {
-                    updateSemSpinner();
-                } catch (SQLException e) {
-//                    Toast.makeText(requireContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                if (position == 0){
+                    selectedYear = "";
+                }else{
+                    selectedYear = years.get(position);
+                    selectedBranchYear = BranchYearExtractor.generateBranchCode(selectedBranch, selectedYear);
+                    showSnackBar(selectedYear);
+
+                    try {
+                        updateSemSpinner();
+                    } catch (SQLException e) {
+                        logError(e.getMessage());
+                    }
                 }
             }
         });
@@ -140,19 +163,29 @@ public class AssignClassFragment extends Fragment {
         spinnerSemester.setOnItemSelectedListener(new SpinnerHelper.SpinnerItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                selectedSemester = parent.getItemAtPosition(position).toString();
-                updateSectionSpinner();
+                if (position == 0){
+                    selectedSemester = "";
+                }else{
+                    selectedSemester = sems.get(position);
+                    showSnackBar(selectedSemester);
+                    updateSectionSpinner();
+                }
             }
         });
 
         spinnerSection.setOnItemSelectedListener(new SpinnerHelper.SpinnerItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                selectedSection = parent.getItemAtPosition(position).toString();
-                try {
-                    updateSubjectSpinner();
-                } catch (SQLException e) {
-//                    Toast.makeText(requireContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                if (position == 0){
+                    selectedSection = "";
+                }else{
+                    selectedSection = sections.get(position);
+                    showSnackBar(selectedSection);
+                    try {
+                        updateSubjectSpinner();
+                    } catch (SQLException e) {
+                        logError(e.getMessage());
+                    }
                 }
             }
         });
@@ -160,18 +193,17 @@ public class AssignClassFragment extends Fragment {
         spinnerSubject.setOnItemSelectedListener(new SpinnerHelper.SpinnerItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                selectedSubject = parent.getItemAtPosition(position).toString();
-
-                int startIndex = selectedSubject.indexOf("(");
-                int endIndex = selectedSubject.lastIndexOf(")");
-                if (!selectedSubject.equals(ph_sub)) {
-                    sub_name = selectedSubject.substring(0, selectedSubject.indexOf("("));
-                    if (startIndex != -1 && endIndex != -1) {
-                        sub_code = selectedSubject.substring(startIndex + 1, endIndex);
-                        Log.e("my testing", "Subject code for " + selectedSubject + " is " + sub_code);
-                    } else {
-                        Log.e("my testing", "Subject " + selectedSubject + " doesn't contain parentheses.");
-                    }
+                if (position == 0){
+                    selectedSubject = "";
+                    sub_name = "";
+                    sub_code = "";
+                }else{
+                    selectedSubject = subjects.get(position);
+                    int start = selectedSubject.indexOf("(");
+                    int end = selectedSubject.lastIndexOf(")");
+                    sub_name = selectedSubject.substring(0, start);
+                    sub_code = selectedSubject.substring(start+1, end);
+                    showSnackBar(selectedSubject);
                 }
             }
         });
@@ -192,7 +224,11 @@ public class AssignClassFragment extends Fragment {
     }
     private void loadSchemeSpinner() throws SQLException {
         schemes = dataFetcher.fetchSchemes();
-        SpinnerHelper.populateSpinner(spinnerScheme, schemes);
+        HintArrayAdapter adapter = new HintArrayAdapter(requireContext(),
+                android.R.layout.simple_spinner_item, schemes, "Select a Scheme...");
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerScheme.setAdapter(adapter);
+//        SpinnerHelper.populateSpinner(spinnerScheme, schemes);
     }
 
     private void loadEmployees() throws SQLException {
@@ -201,25 +237,46 @@ public class AssignClassFragment extends Fragment {
     }
     private void updateBranchSpinner() throws SQLException {
         branches = dataFetcher.fetchBranches(selectedScheme);
-        SpinnerHelper.populateSpinner(spinnerBranch, branches);
+//        SpinnerHelper.populateSpinner(spinnerBranch, branches);
+        HintArrayAdapter adapter = new HintArrayAdapter(requireContext(),
+                android.R.layout.simple_spinner_item, branches, "Select a Branch...");
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerBranch.setAdapter(adapter);
     }
     private void updateYearSpinner() throws SQLException {
         years = dataFetcher.fetchYears(selectedScheme, selectedBranch);
-        SpinnerHelper.populateSpinner(spinnerYear, years);
+//        SpinnerHelper.populateSpinner(spinnerYear, years);
+        HintArrayAdapter adapter = new HintArrayAdapter(requireContext(),
+                android.R.layout.simple_spinner_item, years, "Select a Year...");
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerYear.setAdapter(adapter);
     }
 
     private void updateSemSpinner() throws SQLException {
         sems = dataFetcher.fetchSemesters(selectedScheme, selectedBranchYear);
-        SpinnerHelper.populateSpinner(spinnerSemester, sems);
+//        SpinnerHelper.populateSpinner(spinnerSemester, sems);
+        HintArrayAdapter adapter = new HintArrayAdapter(requireContext(),
+                android.R.layout.simple_spinner_item, sems, "Select a Semester...");
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerSemester.setAdapter(adapter);
     }
 
     private void updateSectionSpinner() {
         sections = dataFetcher.fetchSections();
-        SpinnerHelper.populateSpinner(spinnerSection, sections);
+//        SpinnerHelper.populateSpinner(spinnerSection, sections);
+        HintArrayAdapter adapter = new HintArrayAdapter(requireContext(),
+                android.R.layout.simple_spinner_item, sections, "Select a Section...");
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerSection.setAdapter(adapter);
     }
     private void updateSubjectSpinner() throws SQLException {
         subjects = dataFetcher.fetchSubjects(selectedScheme, selectedBranchYear, selectedSemester);
-        SpinnerHelper.populateSpinner(spinnerSubject, subjects);
+//        SpinnerHelper.populateSpinner(spinnerSubject, subjects);
+
+        HintArrayAdapter adapter = new HintArrayAdapter(requireContext(),
+                android.R.layout.simple_spinner_item, subjects, "Select a Subject...");
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerSubject.setAdapter(adapter);
     }
 
 
@@ -252,7 +309,7 @@ public class AssignClassFragment extends Fragment {
                             }
                         }
                     } catch (SQLException e) {
-                        showToast(e.getMessage());
+                        showSnackBar(e.getMessage());
                         Log.d("Assignments", Objects.requireNonNull(e.getMessage()));
                     }
                 }
@@ -356,18 +413,19 @@ public class AssignClassFragment extends Fragment {
     }
 
     private boolean allSelected(){
-        return !selectedScheme.equals(ph_scheme) && !selectedBranch.equals(ph_branch) && !selectedYear.equals(ph_year) && !selectedSemester.equals(ph_sem) && !selectedSection.equals(ph_sec) && !selectedSubject.equals(ph_sub) && !selectedEmployee.isEmpty();
+        return !selectedScheme.isEmpty() && !selectedBranch.isEmpty() && !selectedYear.isEmpty() && !selectedSemester.isEmpty() && !selectedSection.isEmpty() && !selectedSubject.isEmpty() && !selectedEmployee.isEmpty();
     }
 
     private void showConfirmationDialog(){
+        String selected = String.format("Scheme : %s\nBranch : %s\nYear : %s\nSemester : %s\nSection : %s\nSubject : %s\n", selectedScheme, selectedBranch, selectedYear, selectedSemester, selectedSection, selectedSubject);
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext());
         builder.setTitle("Confirmation");
-        builder.setMessage("Do you want to submit the data ?");
+        builder.setMessage("Do you want to submit the data ?\n"+selected);
         builder.setPositiveButton("Yes", ((dialog, which) -> {
             try {
                 assignClass();
             } catch (SQLException e) {
-                showToast(e.getMessage());
+                showSnackBar(e.getMessage());
             }
         }));
         builder.setNegativeButton("No", null);
@@ -408,12 +466,16 @@ public class AssignClassFragment extends Fragment {
         return true;
     }
 
-    private void showToast(String message){
-        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
+    private void showSnackBar(String message){
+        Snackbar.make(layout, message, Snackbar.LENGTH_LONG).show();
+    }
+
+    private void logError(String msg){
+        Log.d("AssignClass Fragment", "logError: "+msg);
     }
 
     private void clearSelectionFields(){
-        spinnerScheme.setSelection(0);
+        spinnerSubject.setSelection(0);
         autotv_employee.setText("");
     }
 }

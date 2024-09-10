@@ -24,6 +24,7 @@ public class DataFetcher {
 
     String query = "";
 
+    //these are still need to be displayed in the see assignments fragment, we haven't modified the code there to not use this placeholders.
     String phScheme = "--- select scheme ---";
     String phBranch = "--- select branch ---";
     String phYear = "--- select year ---";
@@ -37,7 +38,6 @@ public class DataFetcher {
         try(PreparedStatement pst = con.prepareStatement(query);
             ResultSet rs = pst.executeQuery()){
              schemes.clear();
-             schemes.add(phScheme);
              while(rs.next()){
                  schemes.add(rs.getString("SCHEME"));
              }
@@ -60,7 +60,6 @@ public class DataFetcher {
             }
         }
         branches.clear();
-        branches.add(phBranch);
         branches.addAll(BranchYearExtractor.extractBranchList(branch_codes));
 
         return branches;
@@ -85,7 +84,6 @@ public class DataFetcher {
         }
 
         years.clear();
-        years.add(phYear);
         years.addAll(BranchYearExtractor.extractYearList(branch_codes));
 
         return years;
@@ -100,7 +98,6 @@ public class DataFetcher {
             pst.setString(2, branchcode);
             try(ResultSet rs = pst.executeQuery()){
                 semesters.clear();
-                semesters.add(phSem);
                 while(rs.next()){
                     semesters.add(rs.getString("sem"));
                 }
@@ -112,7 +109,6 @@ public class DataFetcher {
     public List<String> fetchSections(){
         sections.clear();
         List<String> temp_sec = Arrays.asList("A","B","C","D");
-        sections.add(phSec);
         sections.addAll(temp_sec);
         return sections;
     }
@@ -128,7 +124,6 @@ public class DataFetcher {
             try(ResultSet rs = pst.executeQuery()){
 
                 subjects.clear();
-                subjects.add(phSub);
 
                 while(rs.next()){
                     String subname_code = rs.getString("subname") + "(" + rs.getString("scode") + ")";
