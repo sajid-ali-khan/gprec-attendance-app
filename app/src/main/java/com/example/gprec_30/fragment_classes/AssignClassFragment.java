@@ -33,6 +33,8 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 
 public class AssignClassFragment extends Fragment {
@@ -50,6 +52,7 @@ public class AssignClassFragment extends Fragment {
 
     DataFetcher dataFetcher = new DataFetcher();
 
+    ExecutorService executorService = Executors.newSingleThreadExecutor();
     public AssignClassFragment() {
         // Required empty public constructor
     }
@@ -281,43 +284,56 @@ public class AssignClassFragment extends Fragment {
 
 
     // Method to handle class assignment
-    private void assignClass() throws SQLException {
-        if(allSelected()){
-            Log.d("Selected Params", empId+" "+empName+" "+selectedScheme+" "+selectedBranch+" "+selectedSemester+" "+sub_name);
-            courseId = dataFetcher.getCourseId(selectedScheme, selectedBranchYear, selectedSemester, sub_code, sub_name);
-            reg_code = RegesterCodeCreator.createRegCode(selectedScheme, selectedBranch, selectedSemester, selectedSection, sub_code);
-            Log.d("AssignClass", "courseId = "+courseId + ", reg_code = "+reg_code);
-            if(dataExists()){
-                {
-                    //making an entry into the assignments table
-                    try (Connection con = DatabaseHelper.SQLConnection()) {
-                        String insertQuery = "INSERT INTO assignments (empid, courseid, reg_code, section) VALUES (?, ?, ?, ?)";
-                        try (PreparedStatement pst = con.prepareStatement(insertQuery)) {
-                            pst.setString(1, String.valueOf(empId));
-                            pst.setInt(2, courseId);
-                            pst.setString(3, reg_code);
-                            pst.setString(4, selectedSection);
+    private void assignClass() {
+        if (allSelected()) {
+            Log.d("Selected Params", empId + " " + empName + " " + selectedScheme + " " + selectedBranch + " " + selectedSemester + " " + sub_name);
 
-                            int rowsAffected = pst.executeUpdate();
-                            if (rowsAffected > 0) {
-                                Toast.makeText(requireContext(), "Assignment added successfully.", Toast.LENGTH_SHORT).show();
-                                // Clear the selection fields after successful submission
-                                createRegister();
-                                clearSelectionFields();
-                            } else {
-                                Toast.makeText(requireContext(), "Error occured while submitting the data!", Toast.LENGTH_SHORT).show();
+            executorService.execute(() -> {
+                try {
+                    courseId = dataFetcher.getCourseId(selectedScheme, selectedBranchYear, selectedSemester, sub_code, sub_name);
+                    reg_code = RegesterCodeCreator.createRegCode(selectedScheme, selectedBranch, selectedSemester, selectedSection, sub_code);
+                    Log.d("AssignClass", "courseId = " + courseId + ", reg_code = " + reg_code);
+
+                    if (dataExists()) {
+                        try (Connection con = DatabaseHelper.SQLConnection()) {
+                            String insertQuery = "INSERT INTO assignments (empid, courseid, reg_code, section) VALUES (?, ?, ?, ?)";
+                            try (PreparedStatement pst = con.prepareStatement(insertQuery)) {
+                                pst.setString(1, String.valueOf(empId));
+                                pst.setInt(2, courseId);
+                                pst.setString(3, reg_code);
+                                pst.setString(4, selectedSection);
+
+                                int rowsAffected = pst.executeUpdate();
+                                if (rowsAffected > 0) {
+                                    requireActivity().runOnUiThread(() -> {
+                                        Toast.makeText(requireContext(), "Assignment added successfully.", Toast.LENGTH_SHORT).show();
+                                        try {
+                                            createRegister();
+                                        } catch (SQLException e) {
+                                            logError(e.getMessage());
+                                        }
+                                        clearSelectionFields();
+                                    });
+                                } else {
+                                    requireActivity().runOnUiThread(() -> {
+                                        Toast.makeText(requireContext(), "Error occurred while submitting the data!", Toast.LENGTH_SHORT).show();
+                                    });
+                                }
                             }
+                        } catch (SQLException e) {
+                            requireActivity().runOnUiThread(() -> {
+                                showSnackBar(e.getMessage());
+                            });
+                            Log.d("Assignments", Objects.requireNonNull(e.getMessage()));
                         }
-                    } catch (SQLException e) {
-                        showSnackBar(e.getMessage());
-                        Log.d("Assignments", Objects.requireNonNull(e.getMessage()));
+                    } else {
+                        requireActivity().runOnUiThread(this::showDeleteConfirmationDialog);
                     }
+                } catch (SQLException e) {
+                    Log.d("AssignClass", Objects.requireNonNull(e.getMessage()));
                 }
-            }else {
-                showDeleteConfirmationDialog();
-            }
+            });
         }
-
     }
 
     private void createRegister() throws SQLException {
@@ -422,11 +438,7 @@ public class AssignClassFragment extends Fragment {
         builder.setTitle("Confirmation");
         builder.setMessage("Do you want to submit the data ?\n"+selected);
         builder.setPositiveButton("Yes", ((dialog, which) -> {
-            try {
-                assignClass();
-            } catch (SQLException e) {
-                showSnackBar(e.getMessage());
-            }
+            assignClass();
         }));
         builder.setNegativeButton("No", null);
         builder.show();
