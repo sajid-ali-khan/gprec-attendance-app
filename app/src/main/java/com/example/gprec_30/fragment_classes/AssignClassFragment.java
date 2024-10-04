@@ -57,11 +57,6 @@ public class AssignClassFragment extends Fragment {
         // Required empty public constructor
     }
 
-    // Variables to hold placeholders of spinners
-    String ph_scheme, ph_branch, ph_year, ph_sem, ph_sec, ph_sub, ph_emp;
-
-    //items lists that are to be loaded in spinners
-
     List<String> schemes, branches, years, sems, sections, subjects, employees;
 
     int courseId;
@@ -83,15 +78,6 @@ public class AssignClassFragment extends Fragment {
         spinnerSubject = rootView.findViewById(R.id.spinnerSubject);
         autotv_employee = rootView.findViewById(R.id.editTextTeacher);
         Button buttonAssignClass = rootView.findViewById(R.id.buttonAssignClass);
-
-        // Initialize placeholders of spinners
-        ph_scheme = getString(R.string.ph_scheme);
-        ph_branch = getString(R.string.ph_branch);
-        ph_year = getString(R.string.ph_year);
-        ph_sem = getString(R.string.ph_sem);
-        ph_sec = getString(R.string.ph_section);
-        ph_sub = getString(R.string.ph_sub);
-        ph_emp = getString(R.string.ph_empid);
 
         spinnerListeners();
 
@@ -231,7 +217,6 @@ public class AssignClassFragment extends Fragment {
                 android.R.layout.simple_spinner_item, schemes, "Select a Scheme...");
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerScheme.setAdapter(adapter);
-//        SpinnerHelper.populateSpinner(spinnerScheme, schemes);
     }
 
     private void loadEmployees() throws SQLException {
@@ -240,7 +225,6 @@ public class AssignClassFragment extends Fragment {
     }
     private void updateBranchSpinner() throws SQLException {
         branches = dataFetcher.fetchBranches(selectedScheme);
-//        SpinnerHelper.populateSpinner(spinnerBranch, branches);
         HintArrayAdapter adapter = new HintArrayAdapter(requireContext(),
                 android.R.layout.simple_spinner_item, branches, "Select a Branch...");
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -248,7 +232,6 @@ public class AssignClassFragment extends Fragment {
     }
     private void updateYearSpinner() throws SQLException {
         years = dataFetcher.fetchYears(selectedScheme, selectedBranch);
-//        SpinnerHelper.populateSpinner(spinnerYear, years);
         HintArrayAdapter adapter = new HintArrayAdapter(requireContext(),
                 android.R.layout.simple_spinner_item, years, "Select a Year...");
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -257,7 +240,6 @@ public class AssignClassFragment extends Fragment {
 
     private void updateSemSpinner() throws SQLException {
         sems = dataFetcher.fetchSemesters(selectedScheme, selectedBranchYear);
-//        SpinnerHelper.populateSpinner(spinnerSemester, sems);
         HintArrayAdapter adapter = new HintArrayAdapter(requireContext(),
                 android.R.layout.simple_spinner_item, sems, "Select a Semester...");
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -266,7 +248,6 @@ public class AssignClassFragment extends Fragment {
 
     private void updateSectionSpinner() {
         sections = dataFetcher.fetchSections();
-//        SpinnerHelper.populateSpinner(spinnerSection, sections);
         HintArrayAdapter adapter = new HintArrayAdapter(requireContext(),
                 android.R.layout.simple_spinner_item, sections, "Select a Section...");
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -274,8 +255,6 @@ public class AssignClassFragment extends Fragment {
     }
     private void updateSubjectSpinner() throws SQLException {
         subjects = dataFetcher.fetchSubjects(selectedScheme, selectedBranchYear, selectedSemester);
-//        SpinnerHelper.populateSpinner(spinnerSubject, subjects);
-
         HintArrayAdapter adapter = new HintArrayAdapter(requireContext(),
                 android.R.layout.simple_spinner_item, subjects, "Select a Subject...");
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);

@@ -19,6 +19,7 @@ import com.example.gprec_30.R;
 import com.example.gprec_30.utils.BranchYearExtractor;
 import com.example.gprec_30.utils.ClassAssignment;
 import com.example.gprec_30.utils.DataFetcher;
+import com.example.gprec_30.utils.HintArrayAdapter;
 import com.example.gprec_30.utils.RegesterCodeCreator;
 import com.example.gprec_30.utils.SpinnerHelper;
 
@@ -44,8 +45,6 @@ public class SeeAssignmentsFragment extends Fragment {
     List<String> schemes, branches, years, sems, sections;
     List<ClassAssignment> assignmentList;
 
-    String ph_scheme, ph_branch, ph_year, ph_sem, ph_sec;
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -61,11 +60,6 @@ public class SeeAssignmentsFragment extends Fragment {
         tableLayout = rootView.findViewById(R.id.tableLayoutAssignments);
         tableHeading = rootView.findViewById(R.id.textViewHeading);
 
-        ph_scheme = getString(R.string.ph_scheme);
-        ph_branch = getString(R.string.ph_branch);
-        ph_year = getString(R.string.ph_year);
-        ph_sem = getString(R.string.ph_sem);
-        ph_sec = getString(R.string.ph_section);
 
         spinnerListeners();
 
@@ -90,11 +84,16 @@ public class SeeAssignmentsFragment extends Fragment {
         spinnerScheme.setOnItemSelectedListener(new SpinnerHelper.SpinnerItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                selectedScheme = parent.getItemAtPosition(position).toString();
-                try {
-                    updateBranchSpinner();
-                } catch (SQLException e) {
-//                    Toast.makeText(requireContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                if (position == 0){
+                    //ignore
+                    selectedScheme = "";
+                }else{
+                    selectedScheme = schemes.get(position);
+                    try {
+                        updateBranchSpinner();
+                    } catch (SQLException e) {
+                        logError(e.getMessage());
+                    }
                 }
             }
         });
@@ -102,11 +101,15 @@ public class SeeAssignmentsFragment extends Fragment {
         spinnerBranch.setOnItemSelectedListener(new SpinnerHelper.SpinnerItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                selectedBranchName = parent.getItemAtPosition(position).toString();
-                try {
-                    updateYearSpinner();
-                } catch (SQLException e) {
-//                    Toast.makeText(requireContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                if (position == 0){
+                    selectedBranchName = "";
+                }else{
+                    selectedBranchName = branches.get(position);
+                    try {
+                        updateYearSpinner();
+                    } catch (SQLException e) {
+                        logError(e.getMessage());
+                    }
                 }
             }
         });
@@ -114,12 +117,16 @@ public class SeeAssignmentsFragment extends Fragment {
         spinnerYear.setOnItemSelectedListener(new SpinnerHelper.SpinnerItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                selectedYear = parent.getItemAtPosition(position).toString();
-                selectedBranchYear = BranchYearExtractor.generateBranchCode(selectedBranchName, selectedYear);
-                try {
-                    updateSemSpinner();
-                } catch (SQLException e) {
-//                    Toast.makeText(requireContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                if (position == 0){
+                    selectedYear = "";
+                }else{
+                    selectedYear = years.get(position);
+                    selectedBranchYear = BranchYearExtractor.generateBranchCode(selectedBranchName, selectedYear);
+                    try {
+                        updateSemSpinner();
+                    } catch (SQLException e) {
+                        logError(e.getMessage());
+                    }
                 }
             }
         });
@@ -127,42 +134,65 @@ public class SeeAssignmentsFragment extends Fragment {
         spinnerSemester.setOnItemSelectedListener(new SpinnerHelper.SpinnerItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                selectedSemester = parent.getItemAtPosition(position).toString();
-                updateSectionSpinner();
+                if (position == 0){
+                    selectedSemester = "";
+                }else{
+                    selectedSemester = sems.get(position);
+                    updateSectionSpinner();
+                }
             }
         });
 
         spinnerSection.setOnItemSelectedListener(new SpinnerHelper.SpinnerItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                selectedSection = parent.getItemAtPosition(position).toString();
+                if (position == 0){
+                    selectedSection = "";
+                }else{
+                    selectedSection = sections.get(position);
+                }
             }
         });
     }
 
     private void loadSchemeSpinner() throws SQLException {
         schemes = dataFetcher.fetchSchemes();
-        SpinnerHelper.populateSpinner(spinnerScheme, schemes);
+        HintArrayAdapter adapter = new HintArrayAdapter(requireContext(),
+                android.R.layout.simple_spinner_item, schemes, "Select a Scheme...");
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerScheme.setAdapter(adapter);
     }
 
     private void updateBranchSpinner() throws SQLException {
         branches = dataFetcher.fetchBranches(selectedScheme);
-        SpinnerHelper.populateSpinner(spinnerBranch, branches);
+        HintArrayAdapter adapter = new HintArrayAdapter(requireContext(),
+                android.R.layout.simple_spinner_item, branches, "Select a Branch...");
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerBranch.setAdapter(adapter);
     }
 
     private void updateYearSpinner() throws SQLException {
         years = dataFetcher.fetchYears(selectedScheme, selectedBranchName);
-        SpinnerHelper.populateSpinner(spinnerYear, years);
+        HintArrayAdapter adapter = new HintArrayAdapter(requireContext(),
+                android.R.layout.simple_spinner_item, years, "Select a Year...");
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerYear.setAdapter(adapter);
     }
 
     private void updateSemSpinner() throws SQLException {
         sems = dataFetcher.fetchSemesters(selectedScheme, selectedBranchYear);
-        SpinnerHelper.populateSpinner(spinnerSemester, sems);
+        HintArrayAdapter adapter = new HintArrayAdapter(requireContext(),
+                android.R.layout.simple_spinner_item, sems, "Select a Semester...");
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerSemester.setAdapter(adapter);
     }
 
     private void updateSectionSpinner() {
         sections = dataFetcher.fetchSections();
-        SpinnerHelper.populateSpinner(spinnerSection, sections);
+        HintArrayAdapter adapter = new HintArrayAdapter(requireContext(),
+                android.R.layout.simple_spinner_item, sections, "Select a Section...");
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerSection.setAdapter(adapter);
     }
 
     private void fetchClassAssignments() throws SQLException {
@@ -217,6 +247,10 @@ public class SeeAssignmentsFragment extends Fragment {
         }
     }
     private boolean allSelected(){
-        return !selectedScheme.equals(ph_scheme) && !selectedBranchName.equals(ph_branch) && !selectedYear.equals(ph_year) && !selectedSemester.equals(ph_sem) && !selectedSection.equals(ph_sec);
+        return !selectedScheme.isEmpty() && !selectedBranchName.isEmpty() && !selectedYear.isEmpty() && !selectedSemester.isEmpty() && !selectedSection.isEmpty();
     }
+    private void logError(String msg){
+        Log.d("AssignClass Fragment", "logError: "+msg);
+    }
+
 }
