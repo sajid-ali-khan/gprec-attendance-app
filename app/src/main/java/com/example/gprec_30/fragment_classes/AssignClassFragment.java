@@ -294,7 +294,7 @@ public class AssignClassFragment extends Fragment {
                     reg_code = RegesterCodeCreator.createRegCode(selectedScheme, selectedBranch, selectedSemester, selectedSection, sub_code);
                     Log.d("AssignClass", "courseId = " + courseId + ", reg_code = " + reg_code);
 
-                    if (dataExists()) {
+                    if (!dataExists()) {
                         try (Connection con = DatabaseHelper.SQLConnection()) {
                             String insertQuery = "INSERT INTO assignments (empid, courseid, reg_code, section) VALUES (?, ?, ?, ?)";
                             try (PreparedStatement pst = con.prepareStatement(insertQuery)) {
@@ -401,7 +401,7 @@ public class AssignClassFragment extends Fragment {
             Toast.makeText(requireContext(), "Please select the employee.", Toast.LENGTH_SHORT).show();
         }
 
-        if(dataExists()){
+        if(!dataExists()){
             Toast.makeText(requireContext(), "The Record doesn't exist.", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -418,6 +418,8 @@ public class AssignClassFragment extends Fragment {
                 Toast.makeText(requireContext(), "Assignment deleted successfully.", Toast.LENGTH_SHORT).show();
                 // Clear the selection fields after successful submission
                 clearSelectionFields();
+
+                deleteRegisterTable("class_"+reg_code);
             } else {
                 Toast.makeText(requireContext(), "The Record doesn't exist.", Toast.LENGTH_SHORT).show();
             }
@@ -427,6 +429,30 @@ public class AssignClassFragment extends Fragment {
         }
         con.close();
     }
+
+    private void deleteRegisterTable(String regCode) {
+        // Validate the table name (you can improve this as needed)
+        if (!regCode.matches("[a-zA-Z0-9_]+")) {
+            showSnackBar("Invalid table name.");
+            return;
+        }
+        String del_sql = String.format("DROP TABLE IF EXISTS %s", regCode);
+
+        try (Connection con = DatabaseHelper.SQLConnection();
+             Statement stmt = con.createStatement()) {
+
+            Log.d("AssignClass/regCode", "deleteRegisterTable: reg code is " + regCode);
+
+            stmt.executeUpdate(del_sql);
+
+            showSnackBar("The register related table deleted successfully.");
+
+        } catch (SQLException e) {
+            showSnackBar(e.getMessage());
+            Log.d("AssignClass/deleteRegisterTable", "deleteRegisterTable: " + e.getMessage());
+        }
+    }
+
 
     private boolean allSelected(){
         return !selectedScheme.isEmpty() && !selectedBranch.isEmpty() && !selectedYear.isEmpty() && !selectedSemester.isEmpty() && !selectedSection.isEmpty() && !selectedSubject.isEmpty() && !selectedEmployee.isEmpty();
@@ -465,14 +491,14 @@ public class AssignClassFragment extends Fragment {
             try (ResultSet rs = pst.executeQuery()) {
                 if (rs.next()) {
                     assignment_id = rs.getInt("assignment_id");
-                    return false;
+                    return true;
                 }
             }
         } catch (SQLException e) {
             Log.e("HomeActivity", "Error checking data existence: " + e.getMessage(), e);
             throw e;
         }
-        return true;
+        return false;
     }
 
     private void showSnackBar(String message){
