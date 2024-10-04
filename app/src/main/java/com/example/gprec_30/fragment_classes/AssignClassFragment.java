@@ -458,13 +458,10 @@ public class AssignClassFragment extends Fragment {
         builder.show();
     }
     private boolean dataExists() throws SQLException {
-        String query = "select assignment_id from assignments where empid = ? and courseid = ? and reg_code = ? and section = ?";
+        String query = "select assignment_id from assignments where  reg_code = ?";
 
         try (Connection con = DatabaseHelper.SQLConnection(); PreparedStatement pst = con.prepareStatement(query)) {
-            pst.setInt(1, empId);
-            pst.setInt(2, courseId);
-            pst.setString(3, reg_code);
-            pst.setString(4, selectedSection);
+            pst.setString(1, reg_code);
             try (ResultSet rs = pst.executeQuery()) {
                 if (rs.next()) {
                     assignment_id = rs.getInt("assignment_id");
