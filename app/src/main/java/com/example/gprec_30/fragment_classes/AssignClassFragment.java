@@ -9,7 +9,6 @@ import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -273,7 +272,7 @@ public class AssignClassFragment extends Fragment {
                     reg_code = RegesterCodeCreator.createRegCode(selectedScheme, selectedBranch, selectedSemester, selectedSection, sub_code);
                     Log.d("AssignClass", "courseId = " + courseId + ", reg_code = " + reg_code);
 
-                    if (!dataExists()) {
+                    if (!assignmentExists()) {
                         try (Connection con = DatabaseHelper.SQLConnection()) {
                             String insertQuery = "INSERT INTO assignments (empid, courseid, reg_code, section) VALUES (?, ?, ?, ?)";
                             try (PreparedStatement pst = con.prepareStatement(insertQuery)) {
@@ -317,7 +316,13 @@ public class AssignClassFragment extends Fragment {
 
     private void createRegister() throws SQLException {
         // Define the table name
-        String reg_name = "class_" + reg_code;
+        String reg_name;
+
+        if (reg_code.contains("(P)")){
+            reg_name = "lab_"+reg_code.replace("(P)", "");
+        }else{
+            reg_name = "class_"+reg_code;
+        }
 
         // SQL command to create the table
         String createTableSQL = "CREATE TABLE " + reg_name + " (date DATE PRIMARY KEY DEFAULT CONVERT(DATE, GETDATE()))";
@@ -328,7 +333,7 @@ public class AssignClassFragment extends Fragment {
             st.executeUpdate(createTableSQL);
             Toast.makeText(requireContext(), "Reg table created successfully.", Toast.LENGTH_SHORT).show();
         } catch (SQLException e) {
-            Log.d("AssignClass", Objects.requireNonNull(e.getMessage()));
+            Log.d("AssignClass/createRegister", Objects.requireNonNull(e.getMessage()));
             Toast.makeText(requireContext(), "Deleting the assignment..", Toast.LENGTH_SHORT).show();
             performDeletion();
             return;
@@ -380,7 +385,7 @@ public class AssignClassFragment extends Fragment {
             Toast.makeText(requireContext(), "Please select the employee.", Toast.LENGTH_SHORT).show();
         }
 
-        if(!dataExists()){
+        if(!assignmentExists()){
             Toast.makeText(requireContext(), "The Record doesn't exist.", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -398,7 +403,9 @@ public class AssignClassFragment extends Fragment {
                 // Clear the selection fields after successful submission
                 clearSelectionFields();
 
-                deleteRegisterTable("class_"+reg_code);
+                String reg_name = reg_code.contains("(P)")? "lab_"+reg_code.replace("(P)", "") : "class_"+reg_code;
+
+                deleteRegisterTable(reg_name);
             } else {
                 Toast.makeText(requireContext(), "The Record doesn't exist.", Toast.LENGTH_SHORT).show();
             }
@@ -462,7 +469,7 @@ public class AssignClassFragment extends Fragment {
         builder.setNegativeButton("No", null);
         builder.show();
     }
-    private boolean dataExists() throws SQLException {
+    private boolean assignmentExists() throws SQLException {
         String query = "select assignment_id from assignments where  reg_code = ?";
 
         try (Connection con = DatabaseHelper.SQLConnection(); PreparedStatement pst = con.prepareStatement(query)) {

@@ -155,8 +155,9 @@ public class TakeAttendanceFragment extends Fragment {
 
 
     private void checkAndInsertRowForToday() throws SQLException {
-        String checkQuery = "SELECT COUNT(*) FROM class_" + selectedClass + " WHERE [date] = CONVERT(date, GETDATE())";
-        String insertQuery = "INSERT INTO class_" + selectedClass + " ([date]) VALUES (CONVERT(date, GETDATE()))";
+        String reg_name = selectedClass.contains("(P)")? "lab_"+selectedClass.replace("(P)", "") : "class_"+selectedClass;
+        String checkQuery = "SELECT COUNT(*) FROM " + reg_name + " WHERE [date] = CONVERT(date, GETDATE())";
+        String insertQuery = "INSERT INTO " + reg_name + " ([date]) VALUES (CONVERT(date, GETDATE()))";
 
         try (Connection conn = DatabaseHelper.SQLConnection();
              PreparedStatement checkStmt = conn.prepareStatement(checkQuery);
@@ -180,7 +181,9 @@ public class TakeAttendanceFragment extends Fragment {
 
 
     private void updateAttendanceInDatabase(Map<String, Integer> attendanceMap) throws SQLException {
-        StringBuilder sql = new StringBuilder("UPDATE class_" + selectedClass + " SET ");
+        String reg_name = selectedClass.contains("(P)")? "lab_"+selectedClass.replace("(P)", "") : "class_"+selectedClass;
+
+        StringBuilder sql = new StringBuilder("UPDATE " + reg_name + " SET ");
         List<Integer> values = new ArrayList<>();
 
         for (Map.Entry<String, Integer> entry : attendanceMap.entrySet()) {
