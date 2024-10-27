@@ -3,7 +3,7 @@ package com.example.gprec_30.utils;
 import java.util.*;
 
 public class BranchYearExtractor {
-    private static final Map<Character, String> branchMap = new HashMap<>();
+    public static final Map<Character, String> branchMap = new HashMap<>();
 
     static {
         branchMap.put('1', "CSE");
@@ -20,9 +20,7 @@ public class BranchYearExtractor {
     public static ArrayList<String> extractBranchList(List<String> branches) {
         Set<String> distinctBranches = new HashSet<>();
         for (String branch : branches) {
-            if (isValidBranch(branch)) {
-                distinctBranches.add(branchMap.get(branch.charAt(0)));
-            }
+            distinctBranches.add(branchMap.get(branch.charAt(0)));
         }
         return new ArrayList<>(distinctBranches);
     }
