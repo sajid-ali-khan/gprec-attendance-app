@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    tools:context=".fragment_classes.Report">
+
+    <!-- Title for Attendance Report -->
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:layout_marginBottom="16dp"
+        android:text="Attendance Report"
+        android:textSize="24sp"
+        android:gravity="center"/>
+
+    <!-- Spinner for Branch Selection -->
+    <Spinner
+        android:id="@+id/sp_branch"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="48dp"
+        android:layout_marginBottom="12dp" />
+
+    <!-- Spinner for Semester Selection -->
+    <Spinner
+        android:id="@+id/sp_sem"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="48dp"
+        android:layout_marginBottom="12dp" />
+
+    <!-- Spinner for Section Selection -->
+    <Spinner
+        android:id="@+id/sp_section"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="48dp"
+        android:layout_marginBottom="12dp" />
+
+    <!-- Linear Layout for Date Range -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="16dp">
+
+        <EditText
+            android:id="@+id/date_from"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="From"
+            android:inputType="none"
+            android:focusable="false"
+            android:padding="12dp" />
+
+        <EditText
+            android:id="@+id/date_to"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="To"
+            android:inputType="none"
+            android:focusable="false"
+            android:padding="12dp"
+            android:layout_marginStart="8dp" />
+    </LinearLayout>
+
+    <!-- Button to Submit Report -->
+    <Button
+        android:id="@+id/button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Generate Report"
+        android:textColor="@android:color/white"
+        android:padding="12dp" />
+
+</LinearLayout>
