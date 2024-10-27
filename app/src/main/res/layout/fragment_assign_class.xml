@@ -16,8 +16,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:minHeight="48dp"
-        android:prompt="@string/ph_scheme"
-        style="@android:style/Widget.Holo.Light.Spinner"/>
+        android:prompt="@string/ph_scheme"/>
 
     <!-- Branch Spinner -->
     <Spinner
@@ -26,8 +25,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:minHeight="48dp"
-        android:prompt="@string/ph_branch"
-        style="@android:style/Widget.Holo.Light.Spinner"/>
+        android:prompt="@string/ph_branch"/>
 
     <!-- Year Spinner -->
     <Spinner
@@ -35,8 +33,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:minHeight="48dp"
-        style="@android:style/Widget.Holo.Light.Spinner"/>
+        android:minHeight="48dp"/>
 
     <!-- Semester Spinner -->
     <Spinner
@@ -44,8 +41,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:minHeight="48dp"
-        style="@android:style/Widget.Holo.Light.Spinner"/>
+        android:minHeight="48dp"/>
 
     <!-- Section Spinner -->
     <Spinner
@@ -53,8 +49,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:minHeight="48dp"
-        style="@android:style/Widget.Holo.Light.Spinner"/>
+        android:minHeight="48dp"/>
 
     <!-- Subject Spinner -->
     <Spinner
@@ -62,8 +57,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:minHeight="48dp"
-        style="@android:style/Widget.Holo.Light.Spinner"/>
+        android:minHeight="48dp"/>
 
     <!-- Teacher ID/Name EditText -->
     <AutoCompleteTextView
