@@ -1,7 +1,9 @@
 package com.example.gprec_30.fragment_classes;
 
 import android.os.Bundle;
+
 import androidx.fragment.app.Fragment;
+
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,17 +12,20 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+
 import com.example.gprec_30.R;
 import com.example.gprec_30.utils.BranchYearExtractor;
 import com.example.gprec_30.utils.DatabaseHelper;
 import com.example.gprec_30.utils.HintArrayAdapter;
-import com.example.gprec_30.utils.MyBranchSorter;
 import com.google.android.material.datepicker.MaterialDatePicker;
+
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -28,19 +33,20 @@ import java.util.concurrent.Executors;
 
 public class Report extends Fragment {
 
-    private Spinner sp_branch, sp_year, sp_section;
+    private Spinner sp_branch, sp_sem, sp_section;
     private EditText et_from, et_to;
 
     private Button btn_generateReport;
-    private String selectedBranch = "", selectedYear = "", selectedSection = "";
+    private String selectedBranch = "", selectedSem = "", selectedSection = "";
 
-    private final String ph_branch = "Select a Branch";
-    private final String ph_year = "Select a Year";
-    private final String ph_section = "Select a Section";
+    private final String ph_branch = "Select the Branch";
+    private final String ph_sem = "Select the Semester";
+    private final String ph_section = "Select the Section";
 
     public Report() {
         // Required empty public constructor
     }
+
     static class DbSupporter {
         static List<String> getBranches() {
             String query = "SELECT DISTINCT branch FROM STUDENTS";
@@ -58,6 +64,54 @@ public class Report extends Fragment {
             }
             return branches;
         }
+
+        public static List<String> getSemesters(String branchOnlyCode) {
+            String query = "SELECT DISTINCT sem FROM course\n" +
+                    "  WHERE branch LIKE ?";
+
+            List<String> sems = new ArrayList<>();
+
+            try (Connection conn = DatabaseHelper.SQLConnection();
+                 PreparedStatement pst = conn.prepareStatement(query);
+            ) {
+                String like = branchOnlyCode + "%";
+                pst.setString(1, like);
+
+                ResultSet rs = pst.executeQuery();
+
+                while (rs.next()) {
+                    sems.add(rs.getString("sem"));
+                }
+            } catch (Exception e) {
+                Log.e("Report Fragment DB Supporter", "getSemesters: " + e.getMessage());
+            }
+            Collections.sort(sems);
+            return sems;
+        }
+
+        public static List<String> getSections(String branchOnlyCode, String selectedSem) {
+            List<String> sections = new ArrayList<>();
+            String query = "select distinct sec from students\n" +
+                    "  where branch like ? and sem = ?";
+
+            try (Connection conn = DatabaseHelper.SQLConnection();
+                 PreparedStatement pst = conn.prepareStatement(query);
+            ) {
+                String like = branchOnlyCode + "%";
+                pst.setString(1, like);
+                pst.setString(2, selectedSem);
+
+                ResultSet rs = pst.executeQuery();
+
+                while (rs.next()) {
+                    sections.add(rs.getString("sec"));
+                }
+            } catch (Exception e) {
+                Log.e("Report Fragment DB Supporter", "getSections: " + e.getMessage());
+            }
+            return sections;
+
+        }
     }
 
     @Override
@@ -66,7 +120,7 @@ public class Report extends Fragment {
 
         // Initialize UI components
         sp_branch = rootView.findViewById(R.id.sp_branch);
-        sp_year = rootView.findViewById(R.id.sp_sem);
+        sp_sem = rootView.findViewById(R.id.sp_sem);
         sp_section = rootView.findViewById(R.id.sp_section);
         et_from = rootView.findViewById(R.id.date_from);
         et_to = rootView.findViewById(R.id.date_to);
@@ -82,7 +136,7 @@ public class Report extends Fragment {
 
     private void loadDummySpinners() {
         dummify(sp_branch, ph_branch);
-        dummify(sp_year, ph_year);
+        dummify(sp_sem, ph_sem);
         dummify(sp_section, ph_section);
     }
 
@@ -106,55 +160,83 @@ public class Report extends Fragment {
 
     private void loadSpinnersAsync() {
         Executors.newSingleThreadExecutor().execute(() -> {
-            List<String> branches = DbSupporter.getBranches();
-            MyBranchSorter sorter = new MyBranchSorter(branches);
+            List<String> branches = BranchYearExtractor.extractBranchList(DbSupporter.getBranches());
 
             if (branches.isEmpty()) {
                 Log.e("Report", "No branches found");
                 return;
             }
 
-            requireActivity().runOnUiThread(() -> setupBranchSpinner(sorter));
+            requireActivity().runOnUiThread(() -> manageSpinners(branches));
         });
     }
 
-    private void setupBranchSpinner(MyBranchSorter sorter) {
-        sp_branch.setAdapter(giveAdapter("Select a Branch", sorter.getBranchNames()));
+    private void manageSpinners(List<String> branches) {
+        sp_branch.setAdapter(giveAdapter(ph_branch, branches));
 
         sp_branch.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                dummify(sp_sem, ph_sem);
                 if (position == 0) {
                     selectedBranch = "";
-                    dummify(sp_year, ph_year);
+                    return;
+                }
+                selectedBranch = sp_branch.getSelectedItem().toString();
+                Log.d("Report Fragment", "onItemSelected: selected branch " + selectedBranch);
+                String branchCode = BranchYearExtractor.getBranchOnlyCode(selectedBranch);
+                Log.d("branch listener", "onItemSelected: branch code is " + branchCode);
+                List<String> sems = DbSupporter.getSemesters(branchCode);
+                if (!sems.isEmpty()) {
+                    sp_sem.setAdapter(giveAdapter("Select the Semester", sems));
                 } else {
-                    selectedBranch = sp_branch.getSelectedItem().toString();
-                    List<String> years = sorter.getYears(selectedBranch);
-                    Log.d("Report Fragment", "onItemSelected: selected branch "+ selectedBranch );
-
-                    if (years != null && !years.isEmpty()) {
-                        sp_year.setAdapter(giveAdapter("Select a Year", years));
-                    }
+                    Log.e("Report : branch listener", "onItemSelected: the sems list is empty.");
                 }
             }
 
             @Override
-            public void onNothingSelected(AdapterView<?> parent) { }
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
         });
 
-        sp_year.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        sp_sem.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (position == 0){
-                    selectedYear = "";
-                    dummify(sp_section, ph_section);
-                }else{
-                    selectedYear = sp_year.getSelectedItem().toString();
+                dummify(sp_section, ph_section);
+                if (position == 0) {
+                    selectedSem = "";
+                    return;
+                }
+                selectedSem = sp_sem.getSelectedItem().toString();
+                List<String> sections = DbSupporter.getSections(BranchYearExtractor.getBranchOnlyCode(selectedBranch), selectedSem);
+
+
+                if (!sections.isEmpty()) {
+                    sp_section.setAdapter(giveAdapter(ph_section, sections));
+                } else {
+                    Log.d("Report : sem listener", "onItemSelected: the sections list is empty.");
                 }
             }
 
             @Override
-            public void onNothingSelected(AdapterView<?> parent) { }
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+
+        sp_section.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (position == 0) {
+                    selectedSection = "";
+                } else {
+                    selectedSection = sp_section.getSelectedItem().toString();
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
         });
     }
 
@@ -178,7 +260,7 @@ public class Report extends Fragment {
         }
     }
 
-    private void dummify(Spinner sp, String ph){
+    private void dummify(Spinner sp, String ph) {
         sp.setAdapter(giveAdapter(ph, new ArrayList<>()));
     }
 }
