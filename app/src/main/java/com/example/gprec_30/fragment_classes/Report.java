@@ -12,17 +12,23 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import com.example.gprec_30.R;
+import com.example.gprec_30.utils.AttendanceQueryBuilder;
 import com.example.gprec_30.utils.BranchYearExtractor;
 import com.example.gprec_30.utils.DatabaseHelper;
 import com.example.gprec_30.utils.HintArrayAdapter;
 import com.google.android.material.datepicker.MaterialDatePicker;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,8 +42,8 @@ public class Report extends Fragment {
     private Spinner sp_branch, sp_sem, sp_section;
     private EditText et_from, et_to;
 
-    private Button btn_generateReport;
     private String selectedBranch = "", selectedSem = "", selectedSection = "";
+    private String fromDate = "", toDate = "";
 
     private final String ph_branch = "Select the Branch";
     private final String ph_sem = "Select the Semester";
@@ -72,7 +78,7 @@ public class Report extends Fragment {
             List<String> sems = new ArrayList<>();
 
             try (Connection conn = DatabaseHelper.SQLConnection();
-                 PreparedStatement pst = conn.prepareStatement(query);
+                 PreparedStatement pst = conn.prepareStatement(query)
             ) {
                 String like = branchOnlyCode + "%";
                 pst.setString(1, like);
@@ -95,7 +101,7 @@ public class Report extends Fragment {
                     "  where branch like ? and sem = ?";
 
             try (Connection conn = DatabaseHelper.SQLConnection();
-                 PreparedStatement pst = conn.prepareStatement(query);
+                 PreparedStatement pst = conn.prepareStatement(query)
             ) {
                 String like = branchOnlyCode + "%";
                 pst.setString(1, like);
@@ -124,14 +130,59 @@ public class Report extends Fragment {
         sp_section = rootView.findViewById(R.id.sp_section);
         et_from = rootView.findViewById(R.id.date_from);
         et_to = rootView.findViewById(R.id.date_to);
-        btn_generateReport = rootView.findViewById(R.id.btn_generateReport);
+        Button btn_generateReport = rootView.findViewById(R.id.btn_generateReport);
 
         setupDatePickers();
+
+        btn_generateReport.setOnClickListener(v -> {
+            fromDate = et_from.getText().toString();
+            toDate = et_to.getText().toString();
+
+            if (validateDateRange(fromDate, toDate)) {
+                try {
+                    String formattedFromDate = formatDateString(fromDate);
+                    String formattedToDate = formatDateString(toDate);
+
+                    String branchCode = BranchYearExtractor.getBranchOnlyCode(selectedBranch);
+                    Executors.newSingleThreadExecutor().execute(()->{
+                        String query = AttendanceQueryBuilder.generateAttendanceQuery(branchCode, selectedSem, selectedSection, formattedFromDate, formattedToDate);
+
+                        writeQueryToFile(query);
+                    });
+                    Toast.makeText(requireContext(), "The query generated successfully.", Toast.LENGTH_SHORT).show();
+                } catch (ParseException e) {
+                    Toast.makeText(getContext(), "Invalid date format!", Toast.LENGTH_SHORT).show();
+                    Log.d("Report button", "onCreateView: "+e.getMessage());
+                }
+            } else {
+                Toast.makeText(getContext(), "Invalid date range!", Toast.LENGTH_SHORT).show();
+            }
+        });
+
 
         loadDummySpinners();
         loadSpinnersAsync();
 
         return rootView;
+    }
+
+    private String formatDateString(String date) throws ParseException {
+        SimpleDateFormat inputFormat = new SimpleDateFormat("dd/MM/yyyy");
+        SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy-MM-dd");
+        Date parsedDate = inputFormat.parse(date);
+        return outputFormat.format(parsedDate);
+    }
+
+    private boolean validateDateRange(String fromDate, String toDate) {
+        SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+        try {
+            Date startDate = format.parse(fromDate);
+            Date endDate = format.parse(toDate);
+            return startDate != null && endDate != null && startDate.before(endDate);
+        } catch (ParseException e) {
+            Log.e("Date Validation", "Error parsing dates: " + e.getMessage());
+            return false;
+        }
     }
 
     private void loadDummySpinners() {
@@ -246,21 +297,22 @@ public class Report extends Fragment {
         return adapter;
     }
 
-    // Utility method to parse dates from EditText
-    private long parseDate(EditText editText) {
-        String dateString = editText.getText().toString();
-        SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
-
-        try {
-            Date date = format.parse(dateString);
-            return (date != null) ? date.getTime() : 0;
-        } catch (Exception e) {
-            Log.e("Date Parse", "Error parsing date: " + e.getMessage());
-            return 0;
-        }
-    }
-
     private void dummify(Spinner sp, String ph) {
         sp.setAdapter(giveAdapter(ph, new ArrayList<>()));
     }
+
+
+    private void writeQueryToFile(String query) {
+        // Use the context to get the internal storage directory
+        File dir = requireContext().getFilesDir();
+        File file = new File(dir, "attendance_query.sql");
+
+        try (FileWriter writer = new FileWriter(file)) {
+            writer.write(query);
+            Log.d("File Write", "Query written to file: " + file.getAbsolutePath());
+        } catch (IOException e) {
+            Log.e("File Write", "Error writing to file", e);
+        }
+    }
+
 }
