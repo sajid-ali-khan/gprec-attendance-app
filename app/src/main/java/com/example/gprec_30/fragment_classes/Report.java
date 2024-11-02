@@ -1,5 +1,6 @@
 package com.example.gprec_30.fragment_classes;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -14,16 +15,19 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.example.gprec_30.AttendanceTableActivity;
 import com.example.gprec_30.R;
 import com.example.gprec_30.utils.AttendanceQueryBuilder;
 import com.example.gprec_30.utils.BranchYearExtractor;
 import com.example.gprec_30.utils.DatabaseHelper;
 import com.example.gprec_30.utils.HintArrayAdapter;
 import com.google.android.material.datepicker.MaterialDatePicker;
+import com.example.gprec_30.utils.AttendanceReportTable;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -144,15 +148,23 @@ public class Report extends Fragment {
                     String formattedToDate = formatDateString(toDate);
 
                     String branchCode = BranchYearExtractor.getBranchOnlyCode(selectedBranch);
-                    Executors.newSingleThreadExecutor().execute(()->{
+
+                    Executors.newSingleThreadExecutor().execute(() -> {
                         String query = AttendanceQueryBuilder.generateAttendanceQuery(branchCode, selectedSem, selectedSection, formattedFromDate, formattedToDate);
 
                         writeQueryToFile(query);
+
+                        // Execute the query and get the report data
+                        List<AttendanceReportTable> attendanceReportTable = makeReport(query);
+
+                        // Pass data to the new activity
+                        Intent intent = new Intent(getActivity(), AttendanceTableActivity.class);
+                        intent.putExtra("attendanceReport", new ArrayList<>(attendanceReportTable));  // Key should match when retrieving
+                        requireActivity().runOnUiThread(() -> startActivity(intent)); // Switch to the UI thread to start activity
                     });
-                    Toast.makeText(requireContext(), "The query generated successfully.", Toast.LENGTH_SHORT).show();
                 } catch (ParseException e) {
                     Toast.makeText(getContext(), "Invalid date format!", Toast.LENGTH_SHORT).show();
-                    Log.d("Report button", "onCreateView: "+e.getMessage());
+                    Log.d("Report button", "onCreateView: " + e.getMessage());
                 }
             } else {
                 Toast.makeText(getContext(), "Invalid date range!", Toast.LENGTH_SHORT).show();
@@ -160,10 +172,30 @@ public class Report extends Fragment {
         });
 
 
+
         loadDummySpinners();
         loadSpinnersAsync();
 
         return rootView;
+    }
+
+    private List<AttendanceReportTable> makeReport(String query) {
+        ArrayList<AttendanceReportTable> reportTable = new ArrayList<>();
+        try(Connection con = DatabaseHelper.SQLConnection();
+            Statement st = con.createStatement();
+            ResultSet rs = st.executeQuery(query)){
+            while (rs.next()){
+                String rollNumber = rs.getString("student_id");
+                String days_present = rs.getString("days_present");
+                String total_days = rs.getString("total_days");
+                String percentage = rs.getString("attendance_percentage");
+                reportTable.add(new AttendanceReportTable(rollNumber, days_present, total_days, percentage));
+            }
+        }catch(Exception e){
+            Log.d("Report:makeReport", "makeReport: "+e);
+        }
+
+        return reportTable;
     }
 
     private String formatDateString(String date) throws ParseException {

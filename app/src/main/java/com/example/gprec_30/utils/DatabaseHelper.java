@@ -13,7 +13,7 @@ public class DatabaseHelper {
     @SuppressLint("NewApi")
     public static Connection SQLConnection()
     {
-        String ip="192.168.174.44",port="49170",dbname="college",un="sajid",pass="S@j1d2024!";
+        String ip="192.168.246.44",port="49170",dbname="college",un="sajid",pass="S@j1d2024!";
         StrictMode.ThreadPolicy tp=new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(tp);
         String ConURL;
