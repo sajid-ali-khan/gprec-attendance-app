@@ -158,8 +158,22 @@ public class Report extends Fragment {
                         List<AttendanceReportTable> attendanceReportTable = makeReport(query);
 
                         // Pass data to the new activity
+                        String end = "";
+                        if (selectedSem == "1"){
+                            end = "st";
+                        }else if (selectedSem == "2"){
+                            end = "nd";
+                        }else if (selectedSem == "3"){
+                            end = "rd";
+                        }else{
+                            end = "th";
+                        }
+                        end += " sem";
+                        String className = selectedSem+end + " "+selectedBranch+" - "+selectedSection;
+
                         Intent intent = new Intent(getActivity(), AttendanceTableActivity.class);
                         intent.putExtra("attendanceReport", new ArrayList<>(attendanceReportTable));  // Key should match when retrieving
+                        intent.putExtra("className", className);
                         requireActivity().runOnUiThread(() -> startActivity(intent)); // Switch to the UI thread to start activity
                     });
                 } catch (ParseException e) {

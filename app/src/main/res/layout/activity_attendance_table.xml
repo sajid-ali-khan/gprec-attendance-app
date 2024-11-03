@@ -12,18 +12,43 @@
         android:background="?attr/colorPrimary"
         android:elevation="4dp"
         android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
-        android:visibility="visible" />
+        android:visibility="visible"
+        >
+        <ImageButton
+            android:id="@+id/action_download"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:src="@drawable/file_download_24"
+            android:contentDescription="Download"
+            android:layout_marginEnd="16dp"
+            android:background="?attr/selectableItemBackground"
+            android:padding="8dp" />
+    </androidx.appcompat.widget.Toolbar>
 
-
-    <ScrollView
+    <TextView
+        android:id="@+id/tv_className"
         android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textStyle="bold"
+        android:textSize="24sp"
+        android:text="class name"
+        />
+    <HorizontalScrollView
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content">
 
-        <TableLayout
-            android:id="@+id/table_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="16dp" />
+        <ScrollView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
 
-    </ScrollView>
+            <TableLayout
+                android:id="@+id/table_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="16dp" />
+
+        </ScrollView>
+    </HorizontalScrollView>
 </LinearLayout>
