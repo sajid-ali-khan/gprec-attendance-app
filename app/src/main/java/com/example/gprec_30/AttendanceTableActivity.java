@@ -16,7 +16,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
-import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -24,6 +23,7 @@ import com.example.gprec_30.utils.AttendanceReportTable;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
@@ -155,7 +155,7 @@ public class AttendanceTableActivity extends AppCompatActivity {
     }
 
     private void showFileNameInputDialog(List<AttendanceReportTable> data) {
-        String defaultFileName = "attendance_report_"+className.replaceAll(" ", "")+".csv";
+        String defaultFileName = "attendance_report.csv";
         Log.d("showFileNameInputDialog", "showFileNameInputDialog: class name = "+defaultFileName);
 
         final EditText input = new EditText(this);
@@ -176,9 +176,7 @@ public class AttendanceTableActivity extends AppCompatActivity {
                     }
                     exportCSV(data, fileName);
                 })
-                .setNegativeButton("Cancel", (dialog, which) -> {
-                    Toast.makeText(this, "Download cancelled.", Toast.LENGTH_SHORT).show();
-                })
+                .setNegativeButton("Cancel", (dialog, which) -> Toast.makeText(this, "Download cancelled.", Toast.LENGTH_SHORT).show())
                 .show();
     }
 
@@ -198,7 +196,11 @@ public class AttendanceTableActivity extends AppCompatActivity {
                 .setMessage("The file already exists. Do you want to replace it?")
                 .setPositiveButton("Yes", (dialog, which) -> {
                     // User chose to replace the file
-                    writeCsvToFile(file, data);
+                    if (file.delete()){
+                        writeCsvToFile(file, data);
+                    }else{
+                        Toast.makeText(this, "Failed to delete the existing file.", Toast.LENGTH_SHORT).show();
+                    }
                 })
                 .setNegativeButton("No", (dialog, which) -> {
                     // User chose not to replace the file
@@ -208,18 +210,14 @@ public class AttendanceTableActivity extends AppCompatActivity {
     }
 
     private void writeCsvToFile(File file, List<AttendanceReportTable> data) {
-        // Delete the existing file
-        if (file.exists()) {
-            boolean deleted = file.delete();
-            if (!deleted) {
-                Log.e("AttendanceActivity:writeCsvToFile", "Failed to delete existing file.");
-                Toast.makeText(this, "Failed to delete existing file.", Toast.LENGTH_SHORT).show();
-                return; // Exit if we can't delete the existing file
-            }
+        // Delete the file if it exists to avoid the "EXIST" error
+        if (file.exists() && !file.delete()) {
+            Toast.makeText(this, "Failed to delete the existing file.", Toast.LENGTH_SHORT).show();
+            return;
         }
 
         StringBuilder csvBuilder = new StringBuilder();
-        csvBuilder.append("Roll Number,Classes Present,Total Classes,Attendance (%)\n"); // Header
+        csvBuilder.append("Roll Number,Classes Present,Total Classes,Attendance (%)\n");
 
         for (AttendanceReportTable record : data) {
             csvBuilder.append(record.getRollNumber()).append(",")
@@ -228,15 +226,14 @@ public class AttendanceTableActivity extends AppCompatActivity {
                     .append(record.getAttendancePercentage()).append("\n");
         }
 
-        try (FileWriter writer = new FileWriter(file)) { // Just create the file
+        try (FileWriter writer = new FileWriter(file, false)) { // FileWriter with false (overwrite mode)
             writer.write(csvBuilder.toString());
             Toast.makeText(this, "CSV file saved to downloads!", Toast.LENGTH_SHORT).show();
         } catch (IOException e) {
-            Log.e("AttendanceActivity:writeCsvToFile", "writeCsvToFile: " + e.getMessage());
-            Toast.makeText(this, "Error exporting CSV: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            Log.e("AttendanceActivity:writeCsvToFile", "Error writing CSV file", e);
+            Toast.makeText(this, "Error exporting CSV!", Toast.LENGTH_SHORT).show();
         }
     }
-
 
 
 }
