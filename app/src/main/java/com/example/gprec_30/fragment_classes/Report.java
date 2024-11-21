@@ -3,6 +3,7 @@ package com.example.gprec_30.fragment_classes;
 import android.content.Intent;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import android.util.Log;
@@ -39,6 +40,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.concurrent.Executors;
 
 public class Report extends Fragment {
@@ -158,18 +160,7 @@ public class Report extends Fragment {
                         List<AttendanceReportTable> attendanceReportTable = makeReport(query);
 
                         // Pass data to the new activity
-                        String end = "";
-                        if (selectedSem == "1"){
-                            end = "st";
-                        }else if (selectedSem == "2"){
-                            end = "nd";
-                        }else if (selectedSem == "3"){
-                            end = "rd";
-                        }else{
-                            end = "th";
-                        }
-                        end += " sem";
-                        String className = selectedSem+end + " "+selectedBranch+" - "+selectedSection;
+                        String className = getClassName();
 
                         Intent intent = new Intent(getActivity(), AttendanceTableActivity.class);
                         intent.putExtra("attendanceReport", new ArrayList<>(attendanceReportTable));  // Key should match when retrieving
@@ -191,6 +182,22 @@ public class Report extends Fragment {
         loadSpinnersAsync();
 
         return rootView;
+    }
+
+    @NonNull
+    private String getClassName() {
+        String end = "";
+        if (Objects.equals(selectedSem, "1")){
+            end = "st";
+        }else if (Objects.equals(selectedSem, "2")){
+            end = "nd";
+        }else if (Objects.equals(selectedSem, "3")){
+            end = "rd";
+        }else{
+            end = "th";
+        }
+        end += " sem";
+        return selectedSem+end + " "+selectedBranch+" - "+selectedSection;
     }
 
     private List<AttendanceReportTable> makeReport(String query) {

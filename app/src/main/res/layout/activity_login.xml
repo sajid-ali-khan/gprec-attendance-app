@@ -66,14 +66,6 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:text="@string/submit" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:padding="4dp"
-            android:textColor="#00f"
-            android:text="Forgot Password?"/>
     </LinearLayout>
 
 </LinearLayout>

@@ -58,6 +58,12 @@ public class AssignClassFragment extends Fragment {
 
     List<String> schemes, branches, years, sems, sections, subjects, employees;
 
+    private final String phScheme = "Select the Scheme";
+    private final String phBranch = "Select the Branch";
+    private final String phYear = "Select the Year";
+    private final String phSemester = "Select the Semester";
+    private final String phSection = "Select the Section";
+    private final String phSubject = "Select the Subject";
     int courseId;
     String reg_code;
 
@@ -82,7 +88,7 @@ public class AssignClassFragment extends Fragment {
 
         buttonAssignClass.setOnClickListener(v -> showConfirmationDialog());
 
-
+        loadDummySpinners();
         try {
             loadSchemeSpinner();
             loadEmployees();
@@ -91,6 +97,25 @@ public class AssignClassFragment extends Fragment {
         }
 
         return rootView;
+    }
+
+    private void loadDummySpinners() {
+        dummify(spinnerScheme, phScheme);
+        dummify(spinnerBranch, phBranch);
+        dummify(spinnerYear, phYear);
+        dummify(spinnerSemester, phSemester);
+        dummify(spinnerSection, phSection);
+        dummify(spinnerSubject, phSubject);
+    }
+
+    private void dummify(Spinner sp, String ph) {
+        sp.setAdapter(giveAdapter(ph, new ArrayList<>()));
+    }
+
+    private HintArrayAdapter giveAdapter(String hint, List<String> list) {
+        HintArrayAdapter adapter = new HintArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, list, hint);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        return adapter;
     }
 
     private void spinnerListeners(){
@@ -212,10 +237,7 @@ public class AssignClassFragment extends Fragment {
     }
     private void loadSchemeSpinner() throws SQLException {
         schemes = dataFetcher.fetchSchemes();
-        HintArrayAdapter adapter = new HintArrayAdapter(requireContext(),
-                android.R.layout.simple_spinner_item, schemes, "Select a Scheme...");
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerScheme.setAdapter(adapter);
+        spinnerScheme.setAdapter(giveAdapter(phScheme, schemes));
     }
 
     private void loadEmployees() throws SQLException {
@@ -224,40 +246,25 @@ public class AssignClassFragment extends Fragment {
     }
     private void updateBranchSpinner() throws SQLException {
         branches = dataFetcher.fetchBranches(selectedScheme);
-        HintArrayAdapter adapter = new HintArrayAdapter(requireContext(),
-                android.R.layout.simple_spinner_item, branches, "Select a Branch...");
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerBranch.setAdapter(adapter);
+        spinnerBranch.setAdapter(giveAdapter(phBranch, branches));
     }
     private void updateYearSpinner() throws SQLException {
         years = dataFetcher.fetchYears(selectedScheme, selectedBranch);
-        HintArrayAdapter adapter = new HintArrayAdapter(requireContext(),
-                android.R.layout.simple_spinner_item, years, "Select a Year...");
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerYear.setAdapter(adapter);
+        spinnerYear.setAdapter(giveAdapter(phYear, years));
     }
 
     private void updateSemSpinner() throws SQLException {
         sems = dataFetcher.fetchSemesters(selectedScheme, selectedBranchYear);
-        HintArrayAdapter adapter = new HintArrayAdapter(requireContext(),
-                android.R.layout.simple_spinner_item, sems, "Select a Semester...");
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerSemester.setAdapter(adapter);
+        spinnerSemester.setAdapter(giveAdapter(phSemester, sems));
     }
 
     private void updateSectionSpinner() {
         sections = dataFetcher.fetchSections();
-        HintArrayAdapter adapter = new HintArrayAdapter(requireContext(),
-                android.R.layout.simple_spinner_item, sections, "Select a Section...");
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerSection.setAdapter(adapter);
+        spinnerSection.setAdapter(giveAdapter(phSection, sections));
     }
     private void updateSubjectSpinner() throws SQLException {
         subjects = dataFetcher.fetchSubjects(selectedScheme, selectedBranchYear, selectedSemester);
-        HintArrayAdapter adapter = new HintArrayAdapter(requireContext(),
-                android.R.layout.simple_spinner_item, subjects, "Select a Subject...");
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerSubject.setAdapter(adapter);
+        spinnerSubject.setAdapter(giveAdapter(phSubject, subjects));
     }
 
 
@@ -315,7 +322,6 @@ public class AssignClassFragment extends Fragment {
     }
 
     private void createRegister() throws SQLException {
-        // Define the table name
         String reg_name;
 
         if (reg_code.contains("(P)")){
