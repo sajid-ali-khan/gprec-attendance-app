@@ -7,7 +7,7 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:padding="16dp"
-    android:background="@color/colorPrimaryDark">
+    android:background="?attr/colorPrimary">
 
     <ImageView
         android:layout_width="64dp"

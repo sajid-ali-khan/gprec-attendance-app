@@ -69,12 +69,9 @@ public class TeacherActivity extends AppCompatActivity {
                 TakeAttendanceFragment fragment = new TakeAttendanceFragment();
                 fragment.setArguments(bundle);
 
-                // Check if already on TakeAttendanceFragment
-                if (!(getSupportFragmentManager().findFragmentById(container.getId()) instanceof TakeAttendanceFragment)) {
-                    getSupportFragmentManager().beginTransaction()
-                            .replace(container.getId(), fragment)
-                            .commit();
-                }
+                getSupportFragmentManager().beginTransaction()
+                        .replace(container.getId(), fragment)
+                        .commit();
             } else if (id == R.id.nav_change_password) {
                 ChangePasswordFragment changePasswordFragment = new ChangePasswordFragment();
                 changePasswordFragment.setArguments(bundle);

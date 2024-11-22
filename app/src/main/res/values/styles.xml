@@ -2,4 +2,12 @@
 <!-- res/values/styles.xml -->
 <resources>
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="DrawerIcon" parent="Widget.AppCompat.DrawerArrowToggle">
+        <item name="color">@color/white</item>
+    </style>
+
+    <style name="ToolbarColoredBackArrow" parent="Widget.AppCompat.DrawerArrowToggle">
+        <item name="android:textColorSecondary">@color/white</item>
+    </style>
 </resources>

@@ -6,13 +6,31 @@
     android:layout_height="match_parent">
 
     <TextView
-        android:id="@+id/welcome"
+        android:id="@+id/quoteTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Welcome"
+        android:layout_margin="16dp"
+        android:fontFamily="@font/alex_brush"
+        android:padding="18dp"
+        android:text="Quote of the Day"
         android:textSize="20sp"
+        android:textStyle="italic"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.427" />
+
+    <TextView
+        android:id="@+id/author"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:fontFamily="@font/aclonica"
+        android:text="Author"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="@+id/quoteTextView"
+        app:layout_constraintStart_toStartOf="@+id/quoteTextView"
+        app:layout_constraintTop_toBottomOf="@+id/quoteTextView" />
 </androidx.constraintlayout.widget.ConstraintLayout>
