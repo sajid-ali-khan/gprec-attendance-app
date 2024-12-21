@@ -14,11 +14,27 @@
         android:gravity="center"
         android:textSize="24sp"/>
 
-    <TableLayout
+    <HorizontalScrollView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <ScrollView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <TableLayout
+                android:id="@+id/tbl_classProfile"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+        </ScrollView>
+    </HorizontalScrollView>
+
+    <TextView
+        android:id="@+id/profileStatus"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        >
-
-    </TableLayout>
-
+        android:layout_marginTop="16dp"
+        android:gravity="center"
+        />
 </LinearLayout>

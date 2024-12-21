@@ -6,8 +6,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 public class DataFetcher {
@@ -202,37 +204,34 @@ public class DataFetcher {
 
         return assignments;
     }
-    //for the take attendance fragment, in the class selection dialogue
-    public List<EmployeeAssignment> getEmployeeAssignments(String empId) {
-        List<EmployeeAssignment> assignments = new ArrayList<>();
-        String query = "SELECT course.branch, course.sem, assignments.section, course.scode " +
-                "FROM course " +
-                "INNER JOIN assignments ON assignments.courseid = course.courseid " +
-                "WHERE assignments.empid = ?";
 
-        try (PreparedStatement stmt = con.prepareStatement(query)) {
-            stmt.setString(1, empId);
+    public HashMap<String, Integer> getNumPeriodsMarkedForEachClass(List<String> classes){
+        HashMap<String, Integer> res = new HashMap<>();
 
-            ResultSet rs = stmt.executeQuery();
-            while (rs.next()) {
-                int branch = rs.getInt("branch");
-                int sem = rs.getInt("sem");
-                String section = rs.getString("section");
-                String scode = rs.getString("scode");
+        for (String currClass : classes){
+            String regName = RegesterCodeCreator.giveRegName(currClass);
 
-                EmployeeAssignment assignment = new EmployeeAssignment(branch, sem, section, scode);
-                assignments.add(assignment);
+            String query = "select count(*) count from " + regName;
+
+            try(
+                    Connection connection = DatabaseHelper.SQLConnection();
+                    Statement st = connection.createStatement();
+                    ){
+
+                ResultSet rs = st.executeQuery(query);
+                if(rs.next()){
+                    res.put(currClass, rs.getInt("count"));
+                }
+            }catch(Exception e){
+                Log.d("DataFetcher", "getNumPeriodsMarkedForEachClass: some error occured in getting count of marked classes.");
             }
-        } catch (SQLException e) {
-            Log.d("DataFetcher", "Some error occurred while fetching the class assignments!");
         }
-        return assignments;
+        return res;
     }
 
 
 
     public int getCourseId(String selectedScheme, String selectedBranchYear, String selectedSemester, String subCode, String selectedSubject) {
-        int courseId;
         String query = "select courseid from course WHERE scheme = ? and branch = ? and sem = ? AND scode = ? AND subname = ?";
         try{
             PreparedStatement st = con.prepareStatement(query);

@@ -48,20 +48,20 @@ public class HODActivity extends AppCompatActivity {
 
         FrameLayout container = findViewById(R.id.container);
 
-        TakeAttendanceFragment takeAttendanceFragment = new TakeAttendanceFragment();
         Bundle bundle = new Bundle();
         bundle.putString("emp_id", emp_id);
-        takeAttendanceFragment.setArguments(bundle);
-
+        HomeFragment homeFragment = new HomeFragment();
+        homeFragment.setArguments(bundle);
+        // Replace the container with the TakeAttendanceFragment
         getSupportFragmentManager().beginTransaction()
-                .replace(container.getId(), new HomeFragment())
+                .replace(container.getId(), homeFragment)
                 .commit();
 
 
         navigationView.setNavigationItemSelectedListener(menuItem -> {
             int id = menuItem.getItemId();
             if (id == R.id.nav_home){
-                getSupportFragmentManager().beginTransaction().replace(R.id.container, new HomeFragment()).commit();
+                getSupportFragmentManager().beginTransaction().replace(R.id.container, homeFragment).commit();
             }
             else if(id == R.id.nav_see_assignments){
                 getSupportFragmentManager().beginTransaction().replace(R.id.container, new SeeAssignmentsFragment()).commit();

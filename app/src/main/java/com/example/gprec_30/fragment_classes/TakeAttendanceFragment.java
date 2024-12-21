@@ -155,7 +155,7 @@ public class TakeAttendanceFragment extends Fragment {
 
 
     private void checkAndInsertRowForToday() throws SQLException {
-        String reg_name = selectedClass.contains("(P)")? "lab_"+selectedClass.replace("(P)", "") : "class_"+selectedClass;
+        String reg_name = RegesterCodeCreator.giveRegName(selectedClass);
         String checkQuery = "SELECT COUNT(*) FROM " + reg_name + " WHERE [date] = CONVERT(date, GETDATE())";
         String insertQuery = "INSERT INTO " + reg_name + " ([date]) VALUES (CONVERT(date, GETDATE()))";
 
@@ -226,8 +226,12 @@ public class TakeAttendanceFragment extends Fragment {
 
 
     private void goToHome() {
+        Bundle bundle = new Bundle();
+        bundle.putString("emp_id", empId);
+        HomeFragment homeFragment = new HomeFragment();
+        homeFragment.setArguments(bundle);
         requireActivity().getSupportFragmentManager().beginTransaction()
-                .replace(R.id.container, new HomeFragment())
+                .replace(R.id.container, homeFragment)
                 .commit();
     }
 
