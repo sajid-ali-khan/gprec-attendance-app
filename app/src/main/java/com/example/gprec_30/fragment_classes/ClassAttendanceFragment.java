@@ -30,7 +30,6 @@ import com.google.android.material.switchmaterial.SwitchMaterial;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -46,7 +45,7 @@ import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-public class Report extends Fragment {
+public class ClassAttendanceFragment extends Fragment {
 
     private Spinner sp_branch, sp_sem, sp_section, sp_symbol;
     private EditText et_from, et_to, et_percentage;
@@ -66,7 +65,7 @@ public class Report extends Fragment {
 
     SwitchMaterial toggle_filter;
 
-    public Report() {
+    public ClassAttendanceFragment() {
         // Required empty public constructor
     }
 
@@ -83,7 +82,7 @@ public class Report extends Fragment {
                     branches.add(rs.getString("branch"));
                 }
             } catch (Exception e) {
-                Log.e("Report Fragment DB Supporter", "getBranches: " + e.getMessage());
+                Log.e("ClassAttendanceFragment Fragment DB Supporter", "getBranches: " + e.getMessage());
             }
             return branches;
         }
@@ -106,7 +105,7 @@ public class Report extends Fragment {
                     sems.add(rs.getString("sem"));
                 }
             } catch (Exception e) {
-                Log.e("Report Fragment DB Supporter", "getSemesters: " + e.getMessage());
+                Log.e("ClassAttendanceFragment Fragment DB Supporter", "getSemesters: " + e.getMessage());
             }
             Collections.sort(sems);
             return sems;
@@ -130,7 +129,7 @@ public class Report extends Fragment {
                     sections.add(rs.getString("sec"));
                 }
             } catch (Exception e) {
-                Log.e("Report Fragment DB Supporter", "getSections: " + e.getMessage());
+                Log.e("ClassAttendanceFragment Fragment DB Supporter", "getSections: " + e.getMessage());
             }
             return sections;
 
@@ -139,7 +138,7 @@ public class Report extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_report, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_class_attendance, container, false);
 
         // Initialize UI components
         sp_branch = rootView.findViewById(R.id.sp_branch);
@@ -215,7 +214,7 @@ public class Report extends Fragment {
                     });
                 } catch (ParseException e) {
                     Toast.makeText(getContext(), "Invalid date format!", Toast.LENGTH_SHORT).show();
-                    Log.d("Report button", "onCreateView: " + e.getMessage());
+                    Log.d("ClassAttendanceFragment button", "onCreateView: " + e.getMessage());
                 }
             } else {
                 Toast.makeText(getContext(), "Invalid date range!", Toast.LENGTH_SHORT).show();
@@ -231,7 +230,7 @@ public class Report extends Fragment {
     }
 
     private boolean allFieldsNotFilled() {
-        Log.d("Report", "allFieldsNotFilled: "+ String.format("%s, %s, %s, %s, %s", selectedBranch, selectedSem, selectedSection, fromDate, toDate));
+        Log.d("ClassAttendanceFragment", "allFieldsNotFilled: "+ String.format("%s, %s, %s, %s, %s", selectedBranch, selectedSem, selectedSection, fromDate, toDate));
         return selectedBranch.isEmpty() || selectedSem.isEmpty() || selectedSection.isEmpty() || fromDate.isEmpty() || toDate.isEmpty() || (toggle_filter.isChecked() && (selectedSymbol.isEmpty() || percentage.isEmpty()));
     }
 
@@ -273,7 +272,7 @@ public class Report extends Fragment {
                 reportTable.add(new AttendanceReportTable(rollNumber, days_present, total_days, percentage));
             }
         }catch(Exception e){
-            Log.d("Report:makeReport", "makeReport: "+e);
+            Log.d("ClassAttendanceFragment:makeReport", "makeReport: "+e);
         }
 
         if (toggle_filter.isChecked()){
@@ -349,7 +348,7 @@ public class Report extends Fragment {
             List<String> branches = BranchYearExtractor.extractBranchList(DbSupporter.getBranches());
 
             if (branches.isEmpty()) {
-                Log.e("Report", "No branches found");
+                Log.e("ClassAttendanceFragment", "No branches found");
                 return;
             }
 
@@ -369,14 +368,14 @@ public class Report extends Fragment {
                     return;
                 }
                 selectedBranch = sp_branch.getSelectedItem().toString();
-                Log.d("Report Fragment", "onItemSelected: selected branch " + selectedBranch);
+                Log.d("ClassAttendanceFragment Fragment", "onItemSelected: selected branch " + selectedBranch);
                 String branchCode = BranchYearExtractor.getBranchOnlyCode(selectedBranch);
                 Log.d("branch listener", "onItemSelected: branch code is " + branchCode);
                 List<String> sems = DbSupporter.getSemesters(branchCode);
                 if (!sems.isEmpty()) {
                     sp_sem.setAdapter(giveAdapter("Select the Semester", sems));
                 } else {
-                    Log.e("Report : branch listener", "onItemSelected: the sems list is empty.");
+                    Log.e("ClassAttendanceFragment : branch listener", "onItemSelected: the sems list is empty.");
                 }
             }
 
@@ -400,7 +399,7 @@ public class Report extends Fragment {
                 if (!sections.isEmpty()) {
                     sp_section.setAdapter(giveAdapter(ph_section, sections));
                 } else {
-                    Log.d("Report : sem listener", "onItemSelected: the sections list is empty.");
+                    Log.d("ClassAttendanceFragment : sem listener", "onItemSelected: the sections list is empty.");
                 }
             }
 

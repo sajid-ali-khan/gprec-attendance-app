@@ -10,9 +10,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
 
+import com.example.gprec_30.fragment_classes.AttendanceReportFragment;
 import com.example.gprec_30.fragment_classes.ChangePasswordFragment;
 import com.example.gprec_30.fragment_classes.HomeFragment;
-import com.example.gprec_30.fragment_classes.Report;
 import com.example.gprec_30.fragment_classes.SeeAssignmentsFragment;
 import com.example.gprec_30.fragment_classes.TakeAttendanceFragment;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -79,8 +79,8 @@ public class HODActivity extends AppCompatActivity {
                 getSupportFragmentManager().beginTransaction()
                         .replace(R.id.container, changePasswordFragment)
                         .commit();
-            }else if(id == R.id.nav_report){
-                Report report = new Report();
+            }else if(id == R.id.nav_attendance_report){
+                AttendanceReportFragment report = new AttendanceReportFragment();
                 report.setArguments(bundle);
 
                 getSupportFragmentManager().beginTransaction()

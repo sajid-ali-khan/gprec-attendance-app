@@ -5,9 +5,9 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="16dp"
-    tools:context=".fragment_classes.Report">
+    tools:context=".fragment_classes.ClassAttendanceFragment">
 
-    <!-- Title for Attendance Report -->
+    <!-- Title for Attendance ClassAttendanceFragment -->
     <TextView
         android:id="@+id/textView"
         android:layout_width="match_parent"
@@ -109,7 +109,7 @@
     </LinearLayout>
 
 
-    <!-- Button to Submit Report -->
+    <!-- Button to Submit ClassAttendanceFragment -->
     <Button
         android:id="@+id/btn_generateReport"
         android:layout_width="match_parent"
