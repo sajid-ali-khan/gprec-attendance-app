@@ -86,7 +86,13 @@ public class AssignClassFragment extends Fragment {
 
         spinnerListeners();
 
-        buttonAssignClass.setOnClickListener(v -> showConfirmationDialog());
+        buttonAssignClass.setOnClickListener(v -> {
+            if (allSelected()){
+                showConfirmationDialog();
+            }else{
+                showToast("Please fill all the input fields.");
+            }
+        });
 
         loadDummySpinners();
         try {
@@ -180,7 +186,7 @@ public class AssignClassFragment extends Fragment {
                     selectedSemester = "";
                 }else{
                     selectedSemester = sems.get(position);
-                    showSnackBar(selectedSemester);
+//                    showSnackBar(selectedSemester);
                     updateSectionSpinner();
                 }
             }
@@ -270,55 +276,78 @@ public class AssignClassFragment extends Fragment {
 
     // Method to handle class assignment
     private void assignClass() {
-        if (allSelected()) {
-            Log.d("Selected Params", empId + " " + empName + " " + selectedScheme + " " + selectedBranch + " " + selectedSemester + " " + sub_name);
-
-            executorService.execute(() -> {
-                try {
-                    courseId = dataFetcher.getCourseId(selectedScheme, selectedBranchYear, selectedSemester, sub_code, sub_name);
-                    reg_code = RegesterCodeCreator.createRegCode(selectedScheme, selectedBranch, selectedSemester, selectedSection, sub_code);
-                    Log.d("AssignClass", "courseId = " + courseId + ", reg_code = " + reg_code);
-
-                    if (!assignmentExists()) {
-                        try (Connection con = DatabaseHelper.SQLConnection()) {
-                            String insertQuery = "INSERT INTO assignments (empid, courseid, reg_code, section) VALUES (?, ?, ?, ?)";
-                            try (PreparedStatement pst = con.prepareStatement(insertQuery)) {
-                                pst.setString(1, String.valueOf(empId));
-                                pst.setInt(2, courseId);
-                                pst.setString(3, reg_code);
-                                pst.setString(4, selectedSection);
-
-                                int rowsAffected = pst.executeUpdate();
-                                if (rowsAffected > 0) {
-                                    requireActivity().runOnUiThread(() -> {
-                                        Toast.makeText(requireContext(), "Assignment added successfully.", Toast.LENGTH_SHORT).show();
-                                        try {
-                                            createRegister();
-                                        } catch (SQLException e) {
-                                            logError(e.getMessage());
-                                        }
-                                        clearSelectionFields();
-                                    });
-                                } else {
-                                    requireActivity().runOnUiThread(() -> {
-                                        Toast.makeText(requireContext(), "Error occurred while submitting the data!", Toast.LENGTH_SHORT).show();
-                                    });
-                                }
-                            }
-                        } catch (SQLException e) {
-                            requireActivity().runOnUiThread(() -> {
-                                showSnackBar(e.getMessage());
-                            });
-                            Log.d("Assignments", Objects.requireNonNull(e.getMessage()));
-                        }
-                    } else {
-                        requireActivity().runOnUiThread(this::showDeleteConfirmationDialog);
-                    }
-                } catch (SQLException e) {
-                    Log.d("AssignClass", Objects.requireNonNull(e.getMessage()));
-                }
-            });
+        if (!allSelected()) {
+            showToast("Please fill all the input fields.");
+            return;
         }
+
+        Log.d("Selected Params", empId + " " + empName + " " + selectedScheme + " " + selectedBranch + " " + selectedSemester + " " + sub_name);
+
+        executorService.execute(() -> {
+            try {
+                fetchCourseAndRegCode();
+                if (assignmentExists()) {
+                    runOnUiThread(this::showDeleteConfirmationDialog);
+                    return;
+                }
+                addAssignmentToDatabase();
+            } catch (SQLException e) {
+                logError("AssignClass", e);
+            }
+        });
+    }
+
+    private void fetchCourseAndRegCode() throws SQLException {
+        courseId = dataFetcher.getCourseId(selectedScheme, selectedBranchYear, selectedSemester, sub_code, sub_name);
+        reg_code = RegesterCodeCreator.createRegCode(selectedScheme, selectedBranch, selectedSemester, selectedSection, sub_code);
+        Log.d("AssignClass", "courseId = " + courseId + ", reg_code = " + reg_code);
+    }
+
+    private void addAssignmentToDatabase() {
+        try (Connection con = DatabaseHelper.SQLConnection()) {
+            String insertQuery = "INSERT INTO assignments (empid, courseid, reg_code, section) VALUES (?, ?, ?, ?)";
+            try (PreparedStatement pst = con.prepareStatement(insertQuery)) {
+                pst.setString(1, String.valueOf(empId));
+                pst.setInt(2, courseId);
+                pst.setString(3, reg_code);
+                pst.setString(4, selectedSection);
+
+                int rowsAffected = pst.executeUpdate();
+                if (rowsAffected > 0) {
+                    runOnUiThread(this::handleAssignmentSuccess);
+                } else {
+                    runOnUiThread(() -> showToast("Error occurred while submitting the data!"));
+                }
+            }
+        } catch (SQLException e) {
+            runOnUiThread(() -> showSnackBar(e.getMessage()));
+            showToast("Some error occurred.");
+            logError("Assignments", e);
+        }
+    }
+
+    private void handleAssignmentSuccess() {
+        try {
+            createRegister();
+            showToast("Assignment Successful");
+        } catch (SQLException e) {
+            showToast("Some error occurred.");
+            logError("Register Creation", e);
+        }
+        clearSelectionFields();
+    }
+
+    private void runOnUiThread(Runnable action) {
+        requireActivity().runOnUiThread(action);
+    }
+
+    private void showToast(String message) {
+        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
+    }
+
+    private void logError(String tag, Exception e) {
+        String message = Objects.requireNonNull(e.getMessage());
+        Log.d(tag, message);
     }
 
     private void createRegister() throws SQLException {
@@ -337,10 +366,9 @@ public class AssignClassFragment extends Fragment {
         try (Connection con = DatabaseHelper.SQLConnection();
              Statement st = con.createStatement()) {
             st.executeUpdate(createTableSQL);
-            Toast.makeText(requireContext(), "Reg table created successfully.", Toast.LENGTH_SHORT).show();
+            logError("Reg table created successfully.");
         } catch (SQLException e) {
             Log.d("AssignClass/createRegister", Objects.requireNonNull(e.getMessage()));
-            Toast.makeText(requireContext(), "Deleting the assignment..", Toast.LENGTH_SHORT).show();
             performDeletion();
             return;
         }
@@ -360,7 +388,6 @@ public class AssignClassFragment extends Fragment {
             }
         } catch (SQLException e) {
             Log.d("AssignClass", "Fetching rolls error: " + e.getMessage());
-            Toast.makeText(requireContext(), "deleting the assignment..", Toast.LENGTH_SHORT).show();
             performDeletion();
             return;
         }
@@ -375,7 +402,6 @@ public class AssignClassFragment extends Fragment {
                 st.executeUpdate(addColumnSQL);
             }
 
-            Toast.makeText(requireContext(), "Columns added successfully.", Toast.LENGTH_SHORT).show();
         } catch (SQLException e) {
             Log.d("AssignClass", "Error during adding students to reg table: \n" + e.getMessage());
             Toast.makeText(requireContext(), "deleting assignment....", Toast.LENGTH_SHORT).show();
@@ -405,7 +431,7 @@ public class AssignClassFragment extends Fragment {
 
             int rowsAffected = pst.executeUpdate();
             if (rowsAffected > 0) {
-                Toast.makeText(requireContext(), "Assignment deleted successfully.", Toast.LENGTH_SHORT).show();
+                showToast("Assignment deleted successfully.");
                 // Clear the selection fields after successful submission
                 clearSelectionFields();
 
@@ -413,11 +439,10 @@ public class AssignClassFragment extends Fragment {
 
                 deleteRegisterTable(reg_name);
             } else {
-                Toast.makeText(requireContext(), "The Record doesn't exist.", Toast.LENGTH_SHORT).show();
+                showToast("The Record doesn't exist.");
             }
         } catch (SQLException e) {
             Log.e("HomeActivity", "SQLException in submitSelectionsToDatabase", e);
-            Toast.makeText(requireContext(), "Database error occurred.", Toast.LENGTH_SHORT).show();
         }
         con.close();
     }
@@ -437,10 +462,9 @@ public class AssignClassFragment extends Fragment {
 
             stmt.executeUpdate(del_sql);
 
-            showSnackBar("The register related table deleted successfully.");
+            showToast("The register related table deleted successfully.");
 
         } catch (SQLException e) {
-            showSnackBar(e.getMessage());
             Log.d("AssignClass/deleteRegisterTable", "deleteRegisterTable: " + e.getMessage());
         }
     }
@@ -451,7 +475,7 @@ public class AssignClassFragment extends Fragment {
     }
 
     private void showConfirmationDialog(){
-        String selected = String.format("Scheme : %s\nBranch : %s\nYear : %s\nSemester : %s\nSection : %s\nSubject : %s\n", selectedScheme, selectedBranch, selectedYear, selectedSemester, selectedSection, selectedSubject);
+        String selected = String.format("Scheme: %s\nBranch: %s\nYear: %s\nSemester: %s\nSection: %s\nSubject: %s\nFaculty: %s\n", selectedScheme, selectedBranch, selectedYear, selectedSemester, selectedSection, selectedSubject, selectedEmployee);
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext());
         builder.setTitle("Confirmation");
         builder.setMessage("Do you want to submit the data ?\n"+selected);
@@ -506,4 +530,3 @@ public class AssignClassFragment extends Fragment {
         autotv_employee.setText("");
     }
 }
-

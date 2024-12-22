@@ -10,6 +10,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 
@@ -49,7 +50,14 @@ public class TakeAttendanceFragment extends Fragment {
 
         initView(rootView);
         retrieveEmpId();
-        showClassSelectionDialog();
+
+        List<String> classes = dataFetcher.getEmployeeAssignmentsSimple(empId);
+        if (classes.isEmpty()){
+            Toast.makeText(requireContext(), "No classes assigned for you", Toast.LENGTH_SHORT).show();
+            goToHome();
+            return rootView;
+        }
+        showClassSelectionDialog(classes);
 
         buttonAllPresent.setOnClickListener(v -> setAllCheckboxes(true));
         buttonAllAbsent.setOnClickListener(v -> setAllCheckboxes(false));
@@ -81,9 +89,7 @@ public class TakeAttendanceFragment extends Fragment {
 
 
 
-    private void showClassSelectionDialog() {
-        List<String> classes = dataFetcher.getEmployeeAssignmentsSimple(empId);
-        classes.add(0, "none");
+    private void showClassSelectionDialog(List<String> classes) {
         String[] assignedClasses = classes.toArray(new String[0]);
         idx = 0;
         selectedClass = assignedClasses[idx];
@@ -95,19 +101,16 @@ public class TakeAttendanceFragment extends Fragment {
                     selectedClass = assignedClasses[idx];
                 })
                 .setPositiveButton("OK", (dialogInterface, i) -> {
-                    if (!selectedClass.equals("none")) {
-                        try {
-                            onClassSelected(selectedClass);
-                        } catch (SQLException e) {
-                            showSnackBar(e.getMessage());
-                        }
-                    } else {
-                        showSnackBar("'none' selected.");
+                    try {
+                        onClassSelected(selectedClass);
+                    } catch (SQLException e) {
+                        Log.d("TakeAttendanceFragment:showClassSelectionDialog", "showClassSelectionDialog: error from the onClassSelected function");;
                     }
                 })
-                .setNegativeButton("Cancel", (dialogInterface, i) -> showSnackBar("Cancel Clicked."))
+                .setNegativeButton("Cancel", (dialogInterface, i) -> goToHome())
                 .show();
     }
+
 
     private void showSubmitConfirmationDialog() {
         new MaterialAlertDialogBuilder(requireContext())
