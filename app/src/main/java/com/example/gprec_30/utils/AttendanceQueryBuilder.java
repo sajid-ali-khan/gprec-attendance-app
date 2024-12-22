@@ -25,7 +25,7 @@ public static String generateAttendanceQuery(String branchCode, String sem, Stri
     return query;
 }
 
-    private static List<String> fetchTableNames(String branchCode, String sem, String section) {
+    public static List<String> fetchTableNames(String branchCode, String sem, String section) {
         List<String> tableNames = new ArrayList<>();
         //
         String query = "SELECT reg_code FROM assignments\n" +

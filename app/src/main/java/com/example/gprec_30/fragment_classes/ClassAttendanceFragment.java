@@ -325,12 +325,12 @@ public class ClassAttendanceFragment extends Fragment {
         dummify(sp_section, ph_section);
     }
 
-    private void setupDatePickers() {
+    public void setupDatePickers() {
         et_from.setOnClickListener(v -> showDatePicker(et_from, "FROM"));
         et_to.setOnClickListener(v -> showDatePicker(et_to, "TO"));
     }
 
-    private void showDatePicker(EditText editText, String title) {
+    public void showDatePicker(EditText editText, String title) {
         MaterialDatePicker<Long> datePicker = MaterialDatePicker.Builder.datePicker()
                 .setTitleText(title)
                 .build();

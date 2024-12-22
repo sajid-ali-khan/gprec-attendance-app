@@ -7,16 +7,7 @@
     android:padding="16dp"
     tools:context=".fragment_classes.ClassAttendanceFragment">
 
-    <!-- Title for Attendance ClassAttendanceFragment -->
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:layout_marginBottom="16dp"
-        android:text="Attendance Report"
-        android:textSize="24sp"
-        android:gravity="center"/>
+
 
     <!-- Spinner for Branch Selection -->
     <Spinner
