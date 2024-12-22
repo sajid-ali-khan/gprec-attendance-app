@@ -6,9 +6,9 @@ public class AttendanceReportTable implements Serializable {
     String rollNumber;
     String daysPresent;
     String totalDays;
-    String attendancePercentage;
+    Float attendancePercentage;
 
-    public AttendanceReportTable(String rollNumber, String daysPresent, String totalDays, String attendancePercentage) {
+    public AttendanceReportTable(String rollNumber, String daysPresent, String totalDays, Float attendancePercentage) {
         this.rollNumber = rollNumber;
         this.daysPresent = daysPresent;
         this.totalDays = totalDays;
@@ -27,7 +27,7 @@ public class AttendanceReportTable implements Serializable {
         return totalDays;
     }
 
-    public String getAttendancePercentage() {
+    public Float getAttendancePercentage() {
         return attendancePercentage;
     }
 }

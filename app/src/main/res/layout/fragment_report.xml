@@ -71,6 +71,44 @@
             android:layout_marginStart="8dp" />
     </LinearLayout>
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingVertical="8dp"
+        android:orientation="horizontal">
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/toggle_filter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/filter"
+            android:layout_weight="1"
+            android:textSize="16sp"
+            android:checked="false" />
+
+
+        <Spinner
+            android:id="@+id/sp_symbol"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_weight="1"
+            android:enabled="false"
+            android:minHeight="48dp" />
+
+        <EditText
+            android:id="@+id/et_percentage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:hint="%"
+            android:inputType="numberDecimal"
+            android:minHeight="48dp"
+            android:layout_weight="2"
+            android:enabled="false" />
+    </LinearLayout>
+
+
     <!-- Button to Submit Report -->
     <Button
         android:id="@+id/btn_generateReport"

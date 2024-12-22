@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -24,6 +25,7 @@ import com.example.gprec_30.utils.DatabaseHelper;
 import com.example.gprec_30.utils.HintArrayAdapter;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.example.gprec_30.utils.AttendanceReportTable;
+import com.google.android.material.switchmaterial.SwitchMaterial;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -42,11 +44,12 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 public class Report extends Fragment {
 
-    private Spinner sp_branch, sp_sem, sp_section;
-    private EditText et_from, et_to;
+    private Spinner sp_branch, sp_sem, sp_section, sp_symbol;
+    private EditText et_from, et_to, et_percentage;
 
     private String selectedBranch = "", selectedSem = "", selectedSection = "";
     private String fromDate = "", toDate = "";
@@ -54,6 +57,14 @@ public class Report extends Fragment {
     private final String ph_branch = "Select the Branch";
     private final String ph_sem = "Select the Semester";
     private final String ph_section = "Select the Section";
+
+
+    private final String[] symbols = {"<", ">", "<=", ">=", "="};
+
+    String selectedSymbol = "";
+    String percentage = "";
+
+    SwitchMaterial toggle_filter;
 
     public Report() {
         // Required empty public constructor
@@ -138,11 +149,46 @@ public class Report extends Fragment {
         et_to = rootView.findViewById(R.id.date_to);
         Button btn_generateReport = rootView.findViewById(R.id.btn_generateReport);
 
+        sp_symbol = rootView.findViewById(R.id.sp_symbol);
+        et_percentage = rootView.findViewById(R.id.et_percentage);
+        toggle_filter = rootView.findViewById(R.id.toggle_filter);
+
         setupDatePickers();
 
+        setupFilterActivity();
+
+        // Toggle listener
+        toggle_filter.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            sp_symbol.setEnabled(isChecked);
+            et_percentage.setEnabled(isChecked);
+        });
+
+        sp_symbol.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                // Store the selected symbol in the global variable
+                selectedSymbol = symbols[position];
+                Log.d("SelectedSymbol", "Selected: " + selectedSymbol);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                // Optional: Handle no selection if needed
+                selectedSymbol = ""; // Clear the global variable
+            }
+        });
+
         btn_generateReport.setOnClickListener(v -> {
+
             fromDate = et_from.getText().toString();
             toDate = et_to.getText().toString();
+            percentage = et_percentage.getText().toString();
+
+            //checking if all the input fields are filled
+            if (allFieldsNotFilled()){
+                Toast.makeText(requireContext(), "Please fill all the input fields", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
             if (validateDateRange(fromDate, toDate)) {
                 try {
@@ -154,7 +200,7 @@ public class Report extends Fragment {
                     Executors.newSingleThreadExecutor().execute(() -> {
                         String query = AttendanceQueryBuilder.generateAttendanceQuery(branchCode, selectedSem, selectedSection, formattedFromDate, formattedToDate);
 
-                        writeQueryToFile(query);
+//                        writeQueryToFile(query);
 
                         // Execute the query and get the report data
                         List<AttendanceReportTable> attendanceReportTable = makeReport(query);
@@ -184,6 +230,20 @@ public class Report extends Fragment {
         return rootView;
     }
 
+    private boolean allFieldsNotFilled() {
+        Log.d("Report", "allFieldsNotFilled: "+ String.format("%s, %s, %s, %s, %s", selectedBranch, selectedSem, selectedSection, fromDate, toDate));
+        return selectedBranch.isEmpty() || selectedSem.isEmpty() || selectedSection.isEmpty() || fromDate.isEmpty() || toDate.isEmpty() || (toggle_filter.isChecked() && (selectedSymbol.isEmpty() || percentage.isEmpty()));
+    }
+
+    private void setupFilterActivity() {
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(), R.layout.spinner_item, symbols);
+        adapter.setDropDownViewResource(R.layout.spinner_item);
+
+        sp_symbol.setAdapter(adapter);
+        sp_symbol.setEnabled(false);
+    }
+
     @NonNull
     private String getClassName() {
         String end = "";
@@ -209,11 +269,33 @@ public class Report extends Fragment {
                 String rollNumber = rs.getString("student_id");
                 String days_present = rs.getString("days_present");
                 String total_days = rs.getString("total_days");
-                String percentage = rs.getString("attendance_percentage");
+                Float percentage = rs.getFloat("attendance_percentage");
                 reportTable.add(new AttendanceReportTable(rollNumber, days_present, total_days, percentage));
             }
         }catch(Exception e){
             Log.d("Report:makeReport", "makeReport: "+e);
+        }
+
+        if (toggle_filter.isChecked()){
+            Float percentageFloat = Float.parseFloat(percentage);
+            return reportTable.stream()
+                    .filter(report -> {
+                        switch (selectedSymbol) {
+                            case "<":
+                                return report.getAttendancePercentage() < percentageFloat;
+                            case ">":
+                                return report.getAttendancePercentage() > percentageFloat;
+                            case "<=":
+                                return report.getAttendancePercentage() <= percentageFloat;
+                            case ">=":
+                                return report.getAttendancePercentage() >= percentageFloat;
+                            case "=":
+                                return report.getAttendancePercentage().equals(percentageFloat);
+                            default:
+                                return true; // No filter if `selectedSymbol` is invalid
+                        }
+                    })
+                    .collect(Collectors.toList());
         }
 
         return reportTable;

@@ -106,7 +106,7 @@ public class AttendanceTableActivity extends AppCompatActivity {
         TableRow row = new TableRow(this);
         row.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
 
-        String[] rowData = {record.getRollNumber(), record.getDaysPresent(), record.getTotalDays(), record.getAttendancePercentage()};
+        String[] rowData = {record.getRollNumber(), record.getDaysPresent(), record.getTotalDays(), String.format("%.2f", record.getAttendancePercentage())};
         for (String cellData : rowData) {
             TextView cell = new TextView(this);
             cell.setText(cellData);
