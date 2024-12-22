@@ -202,7 +202,7 @@ public class SeeAssignmentsFragment extends Fragment {
     }
 
     private void updateSectionSpinner() {
-        sections = dataFetcher.fetchSections();
+        sections = dataFetcher.fetchSections(selectedBranchYear);
         spinnerSection.setAdapter(giveAdapter(phSection, sections));
     }
 

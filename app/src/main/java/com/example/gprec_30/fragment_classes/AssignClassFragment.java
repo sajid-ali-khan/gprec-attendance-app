@@ -127,7 +127,7 @@ public class AssignClassFragment extends Fragment {
                     selectedScheme = "";
                 }else{
                     selectedScheme = schemes.get(position);
-                    showSnackBar(selectedScheme);
+//                    showSnackBar(selectedScheme);
                     try {
                         updateBranchSpinner();
                     } catch (SQLException e) {
@@ -144,7 +144,7 @@ public class AssignClassFragment extends Fragment {
                     selectedBranch = "";
                 }else{
                     selectedBranch = branches.get(position);
-                    showSnackBar(selectedBranch);
+//                    showSnackBar(selectedBranch);
                     try {
                         updateYearSpinner();
                     } catch (SQLException e) {
@@ -162,7 +162,7 @@ public class AssignClassFragment extends Fragment {
                 }else{
                     selectedYear = years.get(position);
                     selectedBranchYear = BranchYearExtractor.generateBranchCode(selectedBranch, selectedYear);
-                    showSnackBar(selectedYear);
+//                    showSnackBar(selectedYear);
 
                     try {
                         updateSemSpinner();
@@ -193,7 +193,7 @@ public class AssignClassFragment extends Fragment {
                     selectedSection = "";
                 }else{
                     selectedSection = sections.get(position);
-                    showSnackBar(selectedSection);
+//                    showSnackBar(selectedSection);
                     try {
                         updateSubjectSpinner();
                     } catch (SQLException e) {
@@ -216,7 +216,7 @@ public class AssignClassFragment extends Fragment {
                     int end = selectedSubject.lastIndexOf(")");
                     sub_name = selectedSubject.substring(0, start);
                     sub_code = selectedSubject.substring(start+1, end);
-                    showSnackBar(selectedSubject);
+//                    showSnackBar(selectedSubject);
                 }
             }
         });
@@ -259,7 +259,7 @@ public class AssignClassFragment extends Fragment {
     }
 
     private void updateSectionSpinner() {
-        sections = dataFetcher.fetchSections();
+        sections = dataFetcher.fetchSections(selectedBranchYear);
         spinnerSection.setAdapter(giveAdapter(phSection, sections));
     }
     private void updateSubjectSpinner() throws SQLException {

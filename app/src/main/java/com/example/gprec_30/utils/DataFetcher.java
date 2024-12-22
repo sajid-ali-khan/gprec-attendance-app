@@ -18,7 +18,6 @@ public class DataFetcher {
     List<String> branches = new ArrayList<>();
     List<String> years = new ArrayList<>();
     List<String> semesters = new ArrayList<>();
-    List<String> sections = new ArrayList<>();
     List<String> subjects = new ArrayList<>();
 
     List<String> employees = new ArrayList<>();
@@ -108,10 +107,23 @@ public class DataFetcher {
         return semesters;
     }
 
-    public List<String> fetchSections(){
-        sections.clear();
-        List<String> temp_sec = Arrays.asList("A","B","C","D");
-        sections.addAll(temp_sec);
+    public List<String> fetchSections(String branch){
+        ArrayList<String> sections = new ArrayList<>();
+        String query = "select distinct(sec) from students where branch = ?";
+        try(
+                Connection connection = DatabaseHelper.SQLConnection();
+                PreparedStatement st = connection.prepareStatement(query);
+                ){
+            st.setString(1, branch);
+            ResultSet rs = st.executeQuery();
+
+            while (rs.next()){
+                sections.add(rs.getString("sec"));
+            }
+        }catch(Exception e){
+            Log.d("DataFetcher: fetchSections", "fetchSections: error fetching the sections of the branch with code : "+branch );
+        }
+
         return sections;
     }
 
@@ -204,6 +216,9 @@ public class DataFetcher {
 
         return assignments;
     }
+
+
+
 
     public HashMap<String, Integer> getNumPeriodsMarkedForEachClass(List<String> classes){
         HashMap<String, Integer> res = new HashMap<>();
